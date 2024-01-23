@@ -2,7 +2,7 @@ project:
   type: book
 
 book:
-  title: "IKU_Book"
+  title: "IKU_RBook"
   author: "Mohd Azmi Bin Suliman"
   date: last-modified
   date-format: "dddd, DD/MM/YYYY"
@@ -11,12 +11,13 @@ book:
     - intro.qmd
     - summary.qmd
     - references.qmd
-
 bibliography: references.bib
 
 format:
   pdf:
     documentclass: scrreprt
+    monofont: 'Fira Code'
+    mainfont: Roboto
   html:
     theme: sandstone
     code-fold: show
