@@ -19,18 +19,21 @@ format:
     pdf-engine: xelatex
     include-in-header:
       text: |
+        \usepackage{typearea}
         \usepackage{fontspec}
         \usepackage{listings} % package to use firacode
         \usepackage{lstfiracode} % package to use firacode (still not working)
         \usepackage{microtype} % Improves text appearance
         \usepackage{indentfirst} % Indent the first paragraph after a section header
         \usepackage{xcolor} % Add the xcolor package for color definitions
-        % Define a new command for inline code styling
+        \usepackage{multicol}
         \setlength{\parindent}{1.5em} % Adjust paragraph indentation as needed
         \sloppy % Makes TeX less fussy about line breaking
         \hyphenpenalty=10000 % Discourage hyphenation
         \exhyphenpenalty=10000 % Discourage hyphenation
         \newcommand{\highlighttext}[1]{\colorbox{gray!30}{\textcolor{purple}{#1}}} % New command
+        % Define a new command for inline code styling
+    papersize: a4
     geometry:
       - top=30mm
       - bottom=35mm
@@ -45,3 +48,9 @@ format:
       - Extension=.ttf
       - UprightFont=*-Regular
       - Contextuals=Alternate
+    code-line-numbers: true
+    code-block-bg: '#fdf6e3'
+
+
+execute:
+  warning: false

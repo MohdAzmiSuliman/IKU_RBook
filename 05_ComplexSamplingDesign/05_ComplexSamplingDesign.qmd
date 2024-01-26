@@ -1,5 +1,12 @@
 # Complex Sampling Design in NHMS
 
+```{r}
+#| label: setup
+#| echo: false
+
+pacman::p_load(tidyverse)
+```
+
 ## Why Complex Sampling Design?
 
 Surveys are essential for understanding population characteristics, offering a more efficient and resource-friendly alternative to censuses. Censuses, aiming to collect data from every individual within a population, are historically resource-intensive. In contrast, surveys, whether conducted by governments or researchers, enable effective population inferences with less expenditure.
@@ -36,12 +43,25 @@ Complex sampling designs present a pragmatic and efficient approach for conducti
 
 ## Practical
 
+In complex survey analysis using the `survey::` package in R, it's crucial to account for the design aspects of the survey beyond just the outcome variables and covariates. This includes specifying: 
+
+```{r}
+#| echo: false
+
+tribble(~`Required Information/Specification`, ~`Common NHMS Variable Name`, 
+        "Cluster IDs (PSU)", "EB ID", 
+        "Strata", "State.Strata, State.wt", 
+        "Sampling Weight", "ADW, weight_final, weight") %>% 
+  gt::gt()
+```
+
+
 ### Setup Project
 
-1. Setup your project
-2. Copy the NHMS dataset into the working directory
-3. Create Quarto document
-    - update the YAML metadata to make the document self-contained
+1.  Setup your project
+2.  Copy the NHMS dataset into the working directory
+3.  Create Quarto document
+    -   update the YAML metadata to make the document self-contained
 
 ```{r}
 #| echo: true
@@ -56,14 +76,192 @@ format:
 
 ```
 
-
 ### Analysis
 
-#### Dataset Context
+#### Setup
 
-1. In this practical, the example was shown using NHMS NCD 2019's cholesterol dataset.  
-    - we will focus on known hypercholesterolaemia status (column `known_chol`) as the outcome
+0.  Understand the dataset context
+    -   In this practical, the example was shown using NHMS NCD 2019's cholesterol dataset.
+    -   we will focus on known hypercholesterolaemia status (column `known_chol`) as the outcome
 
-2. Import Dataset
-    - On the \highlighttext{Files} pane, click on the spps .sav file
-    - Select \highlighttext{Import Dataset...}
+@.  Import Dataset
+    -   On the `Files` pane, click on the spps .sav file
+    -   Select `Import Dataset...`
+    -   Copy the code into the r code chunk
+    -   add function `as_factor(_)` to convert labelled code
+
+\newpage
+
+```{r}
+#| output: false
+
+library(tidyverse)
+library(haven)
+
+nhms19ds <- read_sav("nhms19ds.sav") %>% 
+  as_factor()
+
+nhms19ds
+```
+
+
+::: {.callout-note}
+there are 40 columns in the dataset, hence the dataset is not shown here. 
+:::
+
+
+
+@. Briefly (or in detail, up to you), explore the dataset.
+    -   Identify the outcome variable
+        -   data type: numerical, character or factor?
+        -   any missing data
+    -   Identify the complex sampling related variable: 
+        -   the cluster ids
+        -   the strata 
+        -   the sampling weight
+
+
+
+::: {.callout-tip}
+some packages and functions that offer a quick data exploration:  
+    -   `skimr::` package: `skim(_)` function.  
+    -   `summarytools::` package: `dfSummary(_)` function.  
+:::
+
+
+```{r}
+#| eval: false
+
+library(skimr)
+
+nhms19ds %>% 
+  select(known_chol) %>% 
+  skim()
+```
+
+
+\newpage
+\KOMAoptions{usegeometry, paper=landscape,pagesize}
+\recalctypearea
+\newgeometry{right=25mm,left=25mm,top=25mm,bottom=25mm}
+
+```{r}
+#| echo: false
+#| layout-ncol: 2
+
+library(labelled)
+library(gt)
+
+tibble(varname = names(nhms19ds), 
+       varlab = get_variable_labels(nhms19ds)) %>% 
+  unnest(cols = varlab, keep_empty = T) %>% 
+  slice(., 1:20) %>% 
+  gt() %>% 
+  cols_label(varname = "Variable Name", 
+             varlab = "Variable Label") %>%
+  fmt_missing(missing_text = "_no label_")
+
+tibble(varname = names(nhms19ds), 
+       varlab = get_variable_labels(nhms19ds)) %>% 
+  unnest(cols = varlab, keep_empty = T) %>% 
+  slice(., 21:40) %>% 
+  gt() %>% 
+  cols_label(varname = "Variable Name", 
+             varlab = "Variable Label") %>%
+  fmt_missing(missing_text = "_no label_")
+```
+
+\newpage
+\KOMAoptions{paper=portrait,pagesize}
+\recalctypearea
+\restoregeometry
+
+```{r}
+#| echo: false
+
+library(skimr)
+
+nhms19ds %>% 
+  select(known_chol) %>% 
+  skim()
+```
+
+::: {.callout-warning}
+there are missing values in the outcome variable `known_chol`. while is it not a must to remove sample with no outcome, as the analysis will automatic remove sample with no outcome using `na.rm = T` parameter, it is advisable to remove any sample that do not have the outcome.
+:::
+
+
+::: {.callout-tip}
+later in complex sampling design analysis, the analysis accept the variable outcome (i.e. the `known_chol`) variable in either numeric or factor type. but binary type is preferable
+:::
+
+
+@. In this practical we will make some data wrangling
+    -   remove missing outcome
+    -   transform factor type to numerical binary type
+
+```{r}
+nhms19ds <- nhms19ds %>% 
+  as_factor() %>% 
+  filter(!is.na(known_chol)) %>% 
+  mutate(known_cholN = as.numeric(known_chol)-2)
+```
+
+\newpage
+
+::: {.callout-note}
+The variable `known_col` have there levels, which can be check using `levels(_)` function:  `levels(nhms19ds$known_chol)`. When converted to numeric using `as.numeric(_)` function, the `known_chol` value was either `1` (correspond to NA), `2` (correspond to No) and `3` (correspond to Yes), thus the value need to minus 2, so that `No` is correspond to value `0` and `Yes` is correspond with value `1`.  
+\newline
+the conversion can be check by looking at both the variable
+
+```{r}
+#| eval: false
+
+nhms19ds %>% 
+  select(known_chol, known_cholN)
+```
+:::
+
+@. Specifying the Complex Sampling Design
+    -   Add options at the top of Quarto file
+    -   These option is to handle in which if there is single PSU within strata or domains
+    ```{r}
+    library(survey)
+    
+    options(survey.lonely.psu = 'adjust', 
+            survey.adjust.domain.lonely = TRUE)
+    ```
+    -   Unweighted Design
+        -   cluster ids set as 1 (i.e., no clustering)
+        -   weight as 1 (i.e., same probability)
+    ```{r}
+    nhms_unwdsg <- svydesign(id = ~1, 
+                             weights = ~1, 
+                             data = nhms19ds)
+    ```
+    -   Weighted Design
+        -   cluster `id` set as the PSU (commonly the variable `ebid`)
+        -   `strata` set as the stratification. since most NHMS applied two stage of stratification, the strata must include both 1st stage and 2nd stage (commonly the variable `state_st`)
+        -   `weights` set as the sampling weight
+        -   Note that parameter `nest = T` to ensure that the cluster is nested within the specified strata
+    ```{r}
+    nhms_surdsg <- svydesign(id = ~ebid, 
+                             strata = ~state_st, 
+                             weights = ~wtfinal_ncd, 
+                             data = nhms19ds, 
+                             nest = T)
+    ```
+
+we can use function `summary(_)` to view our complex sample design
+
+```{r}
+summary(nhms_unwdsg)
+```
+
+in unweighted design, the probability for sample range from 1 to 1.
+
+```{r}
+summary(nhms_surdsg)
+```
+
+#### Estimating Prevalence
