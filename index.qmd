@@ -1,18 +1,11 @@
 # Preface {.unnumbered}
 
-## Introduction {.unnumbered}
+## Objectives {.unnumbered}
 
 The [Institute for Public Health (IPH)](https://iku.gov.my/) (Malay: Institut Kesihatan Umum, IKU) is a research institution under the Ministry of Health Malaysia, primarily focusing on public health research. In its daily activities, software like SPSS and STATA plays a crucial role in data analysis. However, using these softwares results in significant operational costs for the institute due to the purchase of software licenses. Recognising this issue, IKU is committed to transitioning towards using open-source and free software such as R and Python. This shift reduces cost burdens and empowers IKU staff with more flexible and advanced tools for data analysis.  
 
 R is a practical programming language for statistical analysis and graphics production. Its open-source and free nature makes it the preferred choice for research in public health. Through this book, it is hoped that the data analysis skills among IKU staff will be enhanced, leading to improvements in the quality of IKU's research.
 
-## Objective {.unnumbered}
-
-1.  Introduce R software and RStudio.
-2.  Enhance statistical data analysis skills, including NHMS data.
-3.  Explore advanced features of R and RStudio in public health applications.
-
-\newpage
 
 ## Way Forward {.unnumbered}
 
