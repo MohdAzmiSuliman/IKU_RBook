@@ -33,6 +33,7 @@ format:
         \exhyphenpenalty=10000 % Discourage hyphenation
         \newcommand{\highlighttext}[1]{\colorbox{gray!30}{\textcolor{purple}{#1}}} % New command
         % Define a new command for inline code styling
+        \setlength{\emergencystretch}{3em} % Help LaTeX adjust to overflowing text
     papersize: a4
     geometry:
       - top=30mm

@@ -31,11 +31,11 @@ Despite their benefits, complex sampling designs require meticulous planning and
 
 ### Example: Sampling Probability of a Sabahan
 
-Problem: Consider a hypothetical scenario within a diverse group of 100 people, composed of 60% Malay, 20% Chinese, 15% Indian, and an additional 5% from other ethnic backgrounds, including 1% Sabahan.
+Problem: Consider a hypothetical scenario within a diverse group of 100 people, composed of 60% Malay, 20% Chinese, 15% Indian, and an additional 5% from other ethnic backgrounds, including 1% Sabahan. How sure are we, than when we randomly select 10 people from the group, at least one of the 10 people will be a Sabahan?
 
 Answer: To calculate the probability of selecting at least one Sabahan in a 10-person sample, one might initially consider the likelihood of not choosing a Sabahan and subtract this figure from 1. With 99 of the 100 individuals not being Sabahan, the probability of not selecting a Sabahan in a single attempt is 99/100. Over 10 independent selections, this probability becomes (99/100)\^10. Consequently, the probability of selecting at least one Sabahan is 1 - (99/100)\^10, equating to approximately 9.56%. This calculation suggests a close to 10% chance that the sample will include at least one Sabahan.
 
-## Conclusion
+### Conclusion
 
 Complex sampling designs present a pragmatic and efficient approach for conducting extensive surveys like the NHMS. They ensure a representative sample, optimise resource utilisation, and require careful planning and specialised statistical expertise for accurate population inferences.
 
@@ -82,7 +82,9 @@ format:
 
 0.  Understand the dataset context
     -   In this practical, the example was shown using NHMS NCD 2019's cholesterol dataset.
-    -   we will focus on known hypercholesterolaemia status (column `known_chol`) as the outcome
+    -   Two outcome will be selected
+        -   Categorical Type: known hypercholesterolaemia status (column `known_chol`)
+        -   Numerical Type: capillary total cholesterol level (column `u303`)
 
 @.  Import Dataset
     -   On the `Files` pane, click on the spps .sav file
@@ -94,6 +96,7 @@ format:
 
 ```{r}
 #| output: false
+#| echo: fenced
 
 library(tidyverse)
 library(haven)
@@ -131,11 +134,12 @@ some packages and functions that offer a quick data exploration:
 
 ```{r}
 #| eval: false
+#| echo: fenced
 
 library(skimr)
 
 nhms19ds %>% 
-  select(known_chol) %>% 
+  select(known_chol, u303) %>% 
   skim()
 ```
 
@@ -182,12 +186,13 @@ tibble(varname = names(nhms19ds),
 library(skimr)
 
 nhms19ds %>% 
-  select(known_chol) %>% 
+  select(known_chol, u303) %>% 
   skim()
 ```
 
 ::: {.callout-warning}
-there are missing values in the outcome variable `known_chol`. while is it not a must to remove sample with no outcome, as the analysis will automatic remove sample with no outcome using `na.rm = T` parameter, it is advisable to remove any sample that do not have the outcome.
+- there are missing values in the outcome variable `known_chol`. while is it not a must to remove sample with no outcome, as the analysis will automatic remove sample with no outcome using `na.rm = T` parameter, it is advisable to remove any sample that do not have the outcome. 
+- the outcome variable of capillary total cholesterol was in categorical type. we need to convert it to numerical type
 :::
 
 
@@ -201,10 +206,13 @@ later in complex sampling design analysis, the analysis accept the variable outc
     -   transform factor type to numerical binary type
 
 ```{r}
+#| echo: fenced
+
 nhms19ds <- nhms19ds %>% 
   as_factor() %>% 
   filter(!is.na(known_chol)) %>% 
-  mutate(known_cholN = as.numeric(known_chol)-2)
+  mutate(known_cholN = as.numeric(known_chol)-2,
+         u303 = as.numeric(as.character(u303)))
 ```
 
 \newpage
@@ -216,6 +224,7 @@ the conversion can be check by looking at both the variable
 
 ```{r}
 #| eval: false
+#| echo: fenced
 
 nhms19ds %>% 
   select(known_chol, known_cholN)
@@ -226,6 +235,8 @@ nhms19ds %>%
     -   Add options at the top of Quarto file
     -   These option is to handle in which if there is single PSU within strata or domains
     ```{r}
+    #| echo: fenced
+    
     library(survey)
     
     options(survey.lonely.psu = 'adjust', 
@@ -235,33 +246,53 @@ nhms19ds %>%
         -   cluster ids set as 1 (i.e., no clustering)
         -   weight as 1 (i.e., same probability)
     ```{r}
+    #| echo: fenced
+    
     nhms_unwdsg <- svydesign(id = ~1, 
                              weights = ~1, 
                              data = nhms19ds)
     ```
+    \newpage
     -   Weighted Design
         -   cluster `id` set as the PSU (commonly the variable `ebid`)
         -   `strata` set as the stratification. since most NHMS applied two stage of stratification, the strata must include both 1st stage and 2nd stage (commonly the variable `state_st`)
         -   `weights` set as the sampling weight
         -   Note that parameter `nest = T` to ensure that the cluster is nested within the specified strata
     ```{r}
+    #| echo: fenced
+    
     nhms_surdsg <- svydesign(id = ~ebid, 
                              strata = ~state_st, 
                              weights = ~wtfinal_ncd, 
                              data = nhms19ds, 
                              nest = T)
     ```
+    -   we can use function `summary(_)` to view our complex sample design
+    ```{r}
+    summary(nhms_unwdsg)
+    ```
+    -   in unweighted design, the probability for sample range from 1 to 1.
+    \newpage
+    ```{r}
+    #| echo: fenced
+    options(width = 70) # the output width limit
 
-we can use function `summary(_)` to view our complex sample design
+    summary(nhms_surdsg)
+    ```
+    -   in weighted design summary, several info were given
+        -   the sampling probabilities. in this dataset, each of the sample have probability from 0.00001 to 0.12
+        -   the number of strata, number of sample in each of the strata and number of PSU (EB) in each strata. in this dataset, there are total 30 strata (13 states + 3 federal territories, with each state have 2 locality urban and rural).
 
-```{r}
-summary(nhms_unwdsg)
-```
+#### Count the unweighted sample
 
-in unweighted design, the probability for sample range from 1 to 1.
-
-```{r}
-summary(nhms_surdsg)
-```
 
 #### Estimating Prevalence
+
+0. To estimate prevalence using `survey::` package, the function of `svymean(_)`.
+    -   if the outcome variable is factor type, both original factor type and converted numerical type can be used.
+        -   if original factor type is used, prevalence for both `No` and `Yes` will be estimated.
+        -   if the outcome have three or more levels, using original factor type is preferable.
+        -   if converted to numerical, binary `0` and `1` is a must, with `1` correspond to `Yes`.
+        -   this is because when using `svymean(_)` to calculate prevalence, the function will calculate how many `1` since `0` does not have value.
+
+1. Using function `svymean(_)` to calculate 
