@@ -10,6 +10,7 @@ book:
     - index.qmd
     - '01_Introduction.qmd'
     - '02_DataWrangling.qmd'
+    - '05_ComplexSamplingDesign.qmd'
     - references.qmd
 bibliography: references.bib
 
@@ -20,13 +21,14 @@ format:
     include-in-header:
       text: |
         \usepackage{fontspec}
+        \usepackage{listings} % package to use firacode
+        \usepackage{lstfiracode} % package to use firacode (still not working)
         \usepackage{microtype} % Improves text appearance
         \usepackage{indentfirst} % Indent the first paragraph after a section header
         \setlength{\parindent}{1.5em} % Adjust paragraph indentation as needed
         \sloppy % Makes TeX less fussy about line breaking
         \hyphenpenalty=10000 % Discourage hyphenation
         \exhyphenpenalty=10000 % Discourage hyphenation
-        \usepackage[none]{hyphenat} % Suppress hyphenation
     geometry:
       - top=25mm
       - bottom=30mm
@@ -35,7 +37,12 @@ format:
       - heightrounded
       - bindingoffset=10mm
     mainfont: "Inter-Regular.otf"
-    monofont: Consolas
+    monofont: FiraCode
+    monofontoptions:
+      - Path=./font/FiraCode/
+      - Extension=.ttf
+      - UprightFont=*-Regular
+      - Contextuals=Alternate
 
 
 
