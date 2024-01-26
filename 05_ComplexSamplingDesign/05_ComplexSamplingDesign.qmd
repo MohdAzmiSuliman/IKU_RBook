@@ -1,9 +1,69 @@
-# Complex Sampling Design
+# Complex Sampling Design in NHMS
+
+## Why Complex Sampling Design?
+
+Surveys are essential for understanding population characteristics, offering a more efficient and resource-friendly alternative to censuses. Censuses, aiming to collect data from every individual within a population, are historically resource-intensive. In contrast, surveys, whether conducted by governments or researchers, enable effective population inferences with less expenditure.
+
+Simple random sampling, the traditional gold standard, offers a straightforward approach to population inference due to its readily implemented methodology and unbiased estimates. However, its effectiveness wanes in populations with high heterogeneity, potentially leading to underrepresentation of minority groups. This limitation necessitates the exploration of more intricate sampling designs, such as stratified sampling, despite their inherent complexities and potential for biased selection probabilities.
+
+One of the significant advantages of complex sampling designs is their feasibility without a comprehensive population list, focusing instead on broader stratifications like specific localities, simplifying the sampling process.
+
+### Benefits of Complex Sampling Design
+
+The National Health and Morbidity Survey (NHMS), conducted by the Institute for Public Health (IPH), benefits extensively from complex sampling designs, showcasing several advantages:
+
+1.  **Cost Efficiency**: By clustering samples within selected strata or areas, operational costs are notably reduced, obviating the need to cover extensive and potentially scattered geographical locations.
+
+2.  **Enhanced Representativeness**: Stratification techniques ensure the sample accurately reflects specific subgroups or geographic areas, improving the survey's overall representativeness and reliability.
+
+3.  **Data Analysis Advantages**: Complex sampling designs facilitate the adjustment of sampling weights, enabling the generation of accurate national or state-level estimates. Furthermore, they support comprehensive subgroup analyses, ensuring sufficient statistical power.
+
+### Challenges in Implementing Complex Sampling Design
+
+Despite their benefits, complex sampling designs require meticulous planning and sophisticated analytical techniques. These designs necessitate accounting for factors like clustering and weighting, demanding specialised expertise for both the sample's design and subsequent data analysis.
+
+### Example: Sampling Probability of a Sabahan
+
+Problem: Consider a hypothetical scenario within a diverse group of 100 people, composed of 60% Malay, 20% Chinese, 15% Indian, and an additional 5% from other ethnic backgrounds, including 1% Sabahan.
+
+Answer: To calculate the probability of selecting at least one Sabahan in a 10-person sample, one might initially consider the likelihood of not choosing a Sabahan and subtract this figure from 1. With 99 of the 100 individuals not being Sabahan, the probability of not selecting a Sabahan in a single attempt is 99/100. Over 10 independent selections, this probability becomes (99/100)\^10. Consequently, the probability of selecting at least one Sabahan is 1 - (99/100)\^10, equating to approximately 9.56%. This calculation suggests a close to 10% chance that the sample will include at least one Sabahan.
+
+## Conclusion
+
+Complex sampling designs present a pragmatic and efficient approach for conducting extensive surveys like the NHMS. They ensure a representative sample, optimise resource utilisation, and require careful planning and specialised statistical expertise for accurate population inferences.
+
+\newpage
+
+## Practical
+
+### Setup Project
+
+1. Setup your project
+2. Copy the NHMS dataset into the working directory
+3. Create Quarto document
+    - update the YAML metadata to make the document self-contained
+
+```{r}
+#| echo: true
+#| eval: false
+
+---
+title: "Sesi 4 - NHMS"
+format:
+  html:
+    embed-resources: true
+---
+
+```
 
 
+### Analysis
 
+#### Dataset Context
 
-<!--#  
-Future plan: 
-1. to simulate dataset 
--->
+1. In this practical, the example was shown using NHMS NCD 2019's cholesterol dataset.  
+    - we will focus on known hypercholesterolaemia status (column `known_chol`) as the outcome
+
+2. Import Dataset
+    - On the \highlighttext{Files} pane, click on the spps .sav file
+    - Select \highlighttext{Import Dataset...}

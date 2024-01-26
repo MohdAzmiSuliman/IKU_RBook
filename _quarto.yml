@@ -3,14 +3,13 @@ project:
 
 book:
   title: "R Training Book for IKU"
-  author: "Mohd Azmi Bin Suliman (CNCDR)"
-  date: last-modified
-  date-format: "dddd, DD/MM/YYYY"
   chapters:
     - index.qmd
     - './01_Introduction/01_Introduction.qmd'
-    - '02_DataWrangling.qmd'
-    - '05_ComplexSamplingDesign.qmd'
+    - './02_DataWrangling/02_DataWrangling.qmd'
+    - './03_DataVizualization/03_DataVizualization.qmd'
+    - './04_BasicStatisticalAnalysis/04_BasicStatisticalAnalysis.qmd'
+    - './05_ComplexSamplingDesign/05_ComplexSamplingDesign.qmd'
     - references.qmd
 bibliography: references.bib
 
@@ -25,13 +24,16 @@ format:
         \usepackage{lstfiracode} % package to use firacode (still not working)
         \usepackage{microtype} % Improves text appearance
         \usepackage{indentfirst} % Indent the first paragraph after a section header
+        \usepackage{xcolor} % Add the xcolor package for color definitions
+        % Define a new command for inline code styling
         \setlength{\parindent}{1.5em} % Adjust paragraph indentation as needed
         \sloppy % Makes TeX less fussy about line breaking
         \hyphenpenalty=10000 % Discourage hyphenation
         \exhyphenpenalty=10000 % Discourage hyphenation
+        \newcommand{\highlighttext}[1]{\colorbox{gray!30}{\textcolor{purple}{#1}}} % New command
     geometry:
-      - top=25mm
-      - bottom=30mm
+      - top=30mm
+      - bottom=35mm
       - right=25mm
       - left=25mm
       - heightrounded
