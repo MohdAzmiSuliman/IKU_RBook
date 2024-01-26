@@ -1,9 +1,35 @@
 # Preface {.unnumbered}
 
-This is a Quarto book.
+## Introduction {.unnumbered}
 
-To learn more about Quarto books visit <https://quarto.org/docs/books>.
+The [Institute for Public Health (IPH)](https://iku.gov.my/) (Malay: Institut Kesihatan Umum, IKU) is a research institution under the Ministry of Health Malaysia, primarily focusing on public health research. In its daily activities, software like SPSS and STATA plays a crucial role in data analysis. However, using these softwares results in significant operational costs for the institute due to the purchase of software licenses. Recognising this issue, IKU is committed to transitioning towards using open-source and free software such as R and Python. This shift reduces cost burdens and empowers IKU staff with more flexible and advanced tools for data analysis.
 
-```{r}
-1 + 1
-```
+\par
+
+R is a practical programming language for statistical analysis and graphics production. Its open-source and free nature makes it the preferred choice for research in public health. Through this book, it is hoped that the data analysis skills among IKU staff will be enhanced, leading to improvements in the quality of IKU's research.
+
+## Objective {.unnumbered}
+
+1.  Introduce R software and RStudio.
+2.  Enhance statistical data analysis skills, including NHMS data.
+3.  Explore advanced features of R and RStudio in public health applications.
+
+\newpage
+
+## Way Forward {.unnumbered}
+
+R offers capabilities that extend well beyond statistical analysis. As more IKU staff become proficient in R, we anticipate leveraging R's diverse project capabilities to benefit IKU significantly:
+
+1.  Shiny: Develop interactive dashboards for dynamic and near-real-time result presentation.
+2.  Quarto: Utilize this publishing system for expedited reports and paper production.
+3.  IKU-specific R packages: Create tailored R packages incorporating functions for tasks such as sample size calculation, importing data from REDCap via API, standardising analysis of NHMS data, and uniform reporting of NHMS findings.
+
+\par
+
+This forward-looking approach aims to harness R's full potential to streamline and enhance IKU's research and reporting processes, making them more efficient and impactful.
+
+\vfill
+\noindent Mohd Azmi Bin Suliman  
+\noindent Centre for Non-communicable Diseases Research (CNCDR)  
+\noindent February 2024
+

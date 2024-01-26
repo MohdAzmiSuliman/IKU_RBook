@@ -2,30 +2,41 @@ project:
   type: book
 
 book:
-  title: "IKU_RBook"
-  author: "Mohd Azmi Bin Suliman"
+  title: "R Training Book for IKU"
+  author: "Mohd Azmi Bin Suliman (CNCDR)"
   date: last-modified
   date-format: "dddd, DD/MM/YYYY"
   chapters:
     - index.qmd
-    - intro.qmd
-    - summary.qmd
+    - '01_Introduction.qmd'
+    - '02_DataWrangling.qmd'
     - references.qmd
 bibliography: references.bib
 
 format:
   pdf:
-    documentclass: scrreprt
-    monofont: 'Fira Code'
-    mainfont: Roboto
-  html:
-    theme: sandstone
-    code-fold: show
-    code-overflow: wrap
-    code-tools: true
-    df-print: paged
-    embed-resources: true
-    monofont: 'Fira Code'
+    documentclass: scrbook
+    pdf-engine: xelatex
+    include-in-header:
+      text: |
+        \usepackage{fontspec}
+        \usepackage{microtype} % Improves text appearance
+        \usepackage{indentfirst} % Indent the first paragraph after a section header
+        \setlength{\parindent}{1.5em} % Adjust paragraph indentation as needed
+        \sloppy % Makes TeX less fussy about line breaking
+        \hyphenpenalty=10000 % Discourage hyphenation
+        \exhyphenpenalty=10000 % Discourage hyphenation
+        \usepackage[none]{hyphenat} % Suppress hyphenation
+    geometry:
+      - top=25mm
+      - bottom=30mm
+      - right=25mm
+      - left=25mm
+      - heightrounded
+      - bindingoffset=10mm
+    mainfont: "Inter-Regular.otf"
+    monofont: Consolas
+
 
 
 
