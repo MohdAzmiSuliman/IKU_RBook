@@ -8,7 +8,7 @@ book:
   date-format: "dddd, DD/MM/YYYY"
   chapters:
     - index.qmd
-    - '01_Introduction.qmd'
+    - './01_Introduction/01_Introduction.qmd'
     - '02_DataWrangling.qmd'
     - '05_ComplexSamplingDesign.qmd'
     - references.qmd
