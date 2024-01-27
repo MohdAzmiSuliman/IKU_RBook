@@ -283,8 +283,9 @@ nhms19ds %>%
         -   the sampling probabilities. in this dataset, each of the sample have probability from 0.00001 to 0.12
         -   the number of strata, number of sample in each of the strata and number of PSU (EB) in each strata. in this dataset, there are total 30 strata (13 states + 3 federal territories, with each state have 2 locality urban and rural).
 
-#### Count the unweighted sample
+#### Count the unweighted sample{#sec-csdunwcount}
 
+0. To count the number of sample
 
 #### Estimating Prevalence
 
@@ -296,3 +297,14 @@ nhms19ds %>%
         -   this is because when using `svymean(_)` to calculate prevalence, the function will calculate how many `1` since `0` does not have value.
 
 1. Using function `svymean(_)` to calculate 
+
+#### Total Sample and Estimated Population
+
+Based on tutorial on [Count the unweighted sample](@sec-csdunwcount), can you try to calculate total sample?.  
+
+The tutorial on estimated total population will be cover in @Bonus-II:-Population-Pyramid
+
+## Bonus I: 
+
+## Bonus II: Population Pyramid{}
+
