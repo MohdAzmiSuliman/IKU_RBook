@@ -283,24 +283,87 @@ nhms19ds %>%
         -   the sampling probabilities. in this dataset, each of the sample have probability from 0.00001 to 0.12
         -   the number of strata, number of sample in each of the strata and number of PSU (EB) in each strata. in this dataset, there are total 30 strata (13 states + 3 federal territories, with each state have 2 locality urban and rural).
 
-#### Count the unweighted sample{#sec-csdunwcount}
+#### Count the unweighted sample
 
-0. To count the number of sample
+1. To count the number of sample, we will use function `svymean(_`) from `survey::`. 
+    -   the outcome variable can be either factor type, or if it in numerical type, it must be binary 0-1 number.
+    -   to estimate the number of sample, we will use the unweighed design.
+    -   the `x =` parameter must be in formula form with `~` (tilde) symbol before the variable name, i.e. `~known_chol`.
+
+2. this is if we want to use the original factor type.
+
+```{r}
+#| echo: fenced
+
+svytotal(x = ~known_chol, 
+         design = nhms_unwdsg, 
+         na.rm = T)
+```
+
+3. this is if we want to use the converted to binary 0-1 numerical type. noticed the output differences.
+
+```{r}
+#| echo: fenced
+
+svytotal(x = ~known_cholN, 
+         design = nhms_unwdsg, 
+         na.rm = T)
+```
+
+
+::: {.callout-note}
+Note 1: noticed that parameter `na.rm =` were set as T (TRUE). this is so that any sample with missing at parameter `x =` (i.e. the `known_chol`) will be removed.  
+\newline
+Note 2: From this point forward, I'll use `known_cholN` variable (the binary 0-1 numerical type) as the outcome. You are feel free to use the original factor type, and explore as you wish.
+:::
+
+#### Estimating the estimated population
+
+1. to estimate total number of population that have the outcome (i.e., `known_cholN`), same formula is used, with changes at the design used, i.e. the weighted design
+
+```{r}
+#| echo: fenced
+
+svytotal(x = ~known_cholN, 
+         design = nhms_surdsg, 
+         na.rm = T)
+```
+
 
 #### Estimating Prevalence
 
-0. To estimate prevalence using `survey::` package, the function of `svymean(_)`.
+0. Estimating the prevalence using the function of `svymean(_)` from `survey::` package.
     -   if the outcome variable is factor type, both original factor type and converted numerical type can be used.
         -   if original factor type is used, prevalence for both `No` and `Yes` will be estimated.
         -   if the outcome have three or more levels, using original factor type is preferable.
-        -   if converted to numerical, binary `0` and `1` is a must, with `1` correspond to `Yes`.
-        -   this is because when using `svymean(_)` to calculate prevalence, the function will calculate how many `1` since `0` does not have value.
+        -   when using the binary 0-1 numerical type (i.e., the `known_cholN`), `svymean(_)` will calculate prevalence by calculating how many `1` since `0` does not have value.
 
 1. Using function `svymean(_)` to calculate 
 
+```{r}
+#| echo: fenced
+
+svymean(x = ~known_cholN, 
+        design = nhms_surdsg, 
+        na.rm = T)
+```
+
+\newpage
+
+::: {.callout-tip}
+Can you calculated the sample proportion using the same function?.  
+
+Hint:  
+
+1. Sample Proportion == Unweighted Propotion.
+2. Unweighted design vs. Weighted design.
+:::
+
+
+
 #### Total Sample and Estimated Population
 
-Based on tutorial on [Count the unweighted sample](@sec-csdunwcount), can you try to calculate total sample?.  
+Can you try calculate the total sample? Using the example from calculating the total number sample with the outcome. 
 
 The tutorial on estimated total population will be cover in @Bonus-II:-Population-Pyramid
 
