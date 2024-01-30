@@ -389,13 +389,206 @@ Hint:
 
 #### Estimating by Subpopulation
 
+1. To estimates by subpopulation, we use `svyby(_)` function
+
+2. Estimating the unweighted count by state
+    -   Don't forget to use the unweighted design
+
+```{r}
+#| echo: fenced
+
+svyby(formula = ~known_cholN, 
+      by = ~strata_gp, 
+      design = nhms_unwdsg, 
+      FUN = svytotal, 
+      na.rm.all = T)
+
+```
+
+3. Estimating the estimated population by state
+
+```{r}
+#| echo: fenced
+
+svyby(formula = ~known_cholN, 
+      by = ~strata_gp, 
+      design = nhms_surdsg, 
+      FUN = svytotal, 
+      na.rm.all = T)
+```
+
+
+4. Estimating the prevalence by state
+
+```{r}
+#| echo: fenced
+
+svyby(formula = ~known_cholN, 
+      by = ~strata_gp, 
+      design = nhms_unwdsg, 
+      FUN = svymean, 
+      na.rm.all = T)
+```
+
+5. Estimating the prevalence CI by state.
+    - unfortunately, `svyciprop(_)` can't be used with `svyby(_)` function.
+    - to estimate the CI, we need to subset the sample, to only the sub-population.
+
+::: {.callout-warning}
+This however, will affect the degree of freedom (df). thus, we need to specified the df in the subset analysis, using the df of the overall design. to achieve this, add parameter `df = degf(design)`, where the design is the overall design
+:::
+
+```{r}
+#| echo: fenced
+
+nhms_surdsg_urban <- subset(nhms_surdsg, 
+                            strata_gp == "Urban") 
+
+svyciprop(formula = ~known_cholN, 
+          design = nhms_surdsg_urban, 
+          method = "xl", 
+          df = degf(nhms_surdsg)) %>% 
+  attr(., "ci")
+```
+\noindent alternatively, we can create custom function \newline (the custom function code is shown next page) 
+
+```{r}
+#| echo: false
+
+# create a svyby-like function specific for svyciprop
+svyciprop_by <- function(x, by, design, 
+                         df = NULL, method = NULL) {
+  # extract the levels in by
+  by_var <- all.vars(by)[1]
+  by_data <- model.frame(by, data = design$variables)
+  by_levels <- sort(unique(by_data[[by_var]]))
+ 
+  # run the svyciprop() functions on each levels in by
+  calculate_ci <- function(stratum) {
+    subset_design <- 
+      subset(design, 
+             design$variables[[by_var]] == stratum)
+    # Use provided df or default to subset design df
+    df_to_use <- if (is.null(df)) degf(subset_design) else df
+    result <- svyciprop(x, design = subset_design, 
+                        method = method, df = df_to_use)
+    return(attr(result, "ci"))
+  }
+  
+  # tabulate the result
+  ci_results <- lapply(by_levels, calculate_ci)
+  results <- data.frame(subset = by_levels, 
+                        ci = do.call(rbind, ci_results))
+
+  return(results)
+}
+```
+
+
+```{r}
+#| echo: fenced
+
+svyciprop_by(x = ~known_cholN, by = ~strata_gp, 
+             design = nhms_surdsg, 
+             df = degf(nhms_surdsg), method = "xl")
+```
+
+\newpage 
+
+\noindent the custom function code
+
+```{r}
+#| echo: fenced
+
+# create a svyby-like function specific for svyciprop
+svyciprop_by <- function(x, by, design, 
+                         df = NULL, method = NULL) {
+  # extract the levels in by
+  by_var <- all.vars(by)[1]
+  by_data <- model.frame(by, data = design$variables)
+  by_levels <- sort(unique(by_data[[by_var]]))
+ 
+  # run the svyciprop() functions on each levels in by
+  calculate_ci <- function(stratum) {
+    subset_design <- 
+      subset(design, 
+             design$variables[[by_var]] == stratum)
+    # Use provided df or default to subset design df
+    df_to_use <- if (is.null(df)) degf(subset_design) else df
+    result <- svyciprop(x, design = subset_design, 
+                        method = method, df = df_to_use)
+    return(attr(result, "ci"))
+  }
+  
+  # tabulate the result
+  ci_results <- lapply(by_levels, calculate_ci)
+  results <- data.frame(subset = by_levels, 
+                        ci = do.call(rbind, ci_results))
+
+  return(results)
+}
+```
+
+\vspace{10pt}
+
+::: {.callout-note}
+this custom function can be simplified, but i make it more general so it can be use to other too.
+:::
+
+
 #### Total Sample and Estimated Population
 
-Can you try calculate the total sample? Using the example from calculating the total number sample with the outcome. 
+\noindent Can you try calculate the total sample? Using the example from calculating the total number sample with the outcome. 
 
-The tutorial on estimated total population will be cover in Bonus II: Population Pyramid part
+\noindent The tutorial on estimated total population will be cover in Bonus II: Population Pyramid part
 
-## Bonus I: 
+## Bonus I: Regression (Linear Regression & Logistic Regression)
 
-## Bonus II: Population Pyramid{}
+### Logistic Regression
+
+#### Simple Logistic Regression
+
+```{r}
+svyglm(known_chol ~ strata_gp, 
+       nhms_surdsg, 
+       family = quasibinomial) %>% 
+  summary()
+```
+
+
+#### Multiple Logistic Regression
+
+```{r}
+svyglm(known_chol ~ strata_gp + A2101 + A2108_3grp, 
+       nhms_surdsg, 
+       family = quasibinomial) %>% 
+  summary()
+```
+
+
+
+### Linear Regression
+
+#### Simple Linear Regression
+
+```{r}
+svyglm(u303 ~ strata_gp, 
+       nhms_surdsg, 
+       family = gaussian) %>% 
+  summary()
+```
+
+#### Multiple Linear Regression
+
+```{r}
+svyglm(u303 ~ strata_gp+ A2101 + A2108_3grp, 
+       nhms_surdsg, 
+       family = gaussian) %>% 
+  summary()
+```
+
+## Bonus II: Mapping the Prevalence
+
+## Bonus III: Population Pyramid:
+
 
