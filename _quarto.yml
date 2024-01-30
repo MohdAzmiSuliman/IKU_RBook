@@ -10,8 +10,8 @@ book:
     - './03_DataVizualization/03_DataVizualization.qmd'
     - './04_BasicStatisticalAnalysis/04_BasicStatisticalAnalysis.qmd'
     - './05_ComplexSamplingDesign/05_ComplexSamplingDesign.qmd'
-    - references.qmd
-bibliography: references.bib
+    - ./references/references.qmd
+bibliography: ./references/references.bib
 
 format:
   pdf:
@@ -33,7 +33,6 @@ format:
         \exhyphenpenalty=10000 % Discourage hyphenation
         \newcommand{\highlighttext}[1]{\colorbox{gray!30}{\textcolor{purple}{#1}}} % New command
         % Define a new command for inline code styling
-        \setlength{\emergencystretch}{3em} % Help LaTeX adjust to overflowing text
     papersize: a4
     geometry:
       - top=30mm
@@ -42,7 +41,11 @@ format:
       - left=25mm
       - heightrounded
       - bindingoffset=10mm
-    mainfont: "Inter-Regular.otf"
+    mainfont: Inter
+    mainfontoptions:
+      - Path=./font/
+      - Extension=.otf
+      - UprightFont=*-Regular
     monofont: FiraCode
     monofontoptions:
       - Path=./font/FiraCode/
