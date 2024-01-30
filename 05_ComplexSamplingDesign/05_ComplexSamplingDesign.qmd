@@ -253,6 +253,11 @@ nhms19ds %>%
                              data = nhms19ds)
     ```
     \newpage
+    -   we can use function `summary(_)` to view our complex sample design
+    ```{r}
+    summary(nhms_unwdsg)
+    ```
+    -   in unweighted design, the probability for sample range from 1 to 1.
     -   Weighted Design
         -   cluster `id` set as the PSU (commonly the variable `ebid`)
         -   `strata` set as the stratification. since most NHMS applied two stage of stratification, the strata must include both 1st stage and 2nd stage (commonly the variable `state_st`)
@@ -268,10 +273,6 @@ nhms19ds %>%
                              nest = T)
     ```
     -   we can use function `summary(_)` to view our complex sample design
-    ```{r}
-    summary(nhms_unwdsg)
-    ```
-    -   in unweighted design, the probability for sample range from 1 to 1.
     \newpage
     ```{r}
     #| echo: fenced
@@ -350,22 +351,49 @@ svymean(x = ~known_cholN,
 
 \newpage
 
+#### Estimating Confidence Interval for Prevalence
+
+1. To calculate the confidence interval for prevalence, function `svyciprop(_)` from package `survey::` will be used.
+    -   Generally, a generic function `confint(_)` can be used to calculate the confident interval for model parameter. 
+    -   In R however, the function will treat proportion as mean of binary outcomes. While treating proportion as mean of binary outcomes is reasonable accepted to calculate the prevalence, however, when calculate the CI, it is preferable to treat apply logit transformation and transformed back to the original scale
+    -   the default method used in `svyciprop(_)` function is "logit"
+    -   however, to replicate result from SPSS and SUDAAN, the method parameter need to change to "xlogit"
+:::
+
+
+```{r}
+#| echo: fenced
+
+svyciprop(formula = ~known_cholN, 
+          design = nhms_surdsg, 
+          method = "xl") %>% 
+  attr(., "ci")
+```
+::: {.callout-note}
+- function `attr(_)` is used to pull the attribute from the object (i.e., the output of the `svyciprop(_)` function), while the parameter `"ci"` in the `attr(_, "ci")` function is to pull the CI from the `svyciprop(_)`
+:::
+
+
+#### Estimating the Unweighted Sample Proportion
+
+
 ::: {.callout-tip}
 Can you calculated the sample proportion using the same function?.  
 
 Hint:  
 
-1. Sample Proportion == Unweighted Propotion.
+1. Sample Proportion = Unweighted Proportion.
 2. Unweighted design vs. Weighted design.
 :::
 
 
+#### Estimating by Subpopulation
 
 #### Total Sample and Estimated Population
 
 Can you try calculate the total sample? Using the example from calculating the total number sample with the outcome. 
 
-The tutorial on estimated total population will be cover in @Bonus-II:-Population-Pyramid
+The tutorial on estimated total population will be cover in Bonus II: Population Pyramid part
 
 ## Bonus I: 
 
