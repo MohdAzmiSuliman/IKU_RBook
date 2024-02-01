@@ -10,8 +10,6 @@ book:
     - './03_DataVizualization/03_DataVizualization.qmd'
     - './04_BasicStatisticalAnalysis/04_BasicStatisticalAnalysis.qmd'
     - './05_ComplexSamplingDesign/05_ComplexSamplingDesign.qmd'
-    - ./references/references.qmd
-bibliography: ./references/references.bib
 
 format:
   pdf:
