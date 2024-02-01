@@ -596,6 +596,7 @@ svyglm(u303 ~ strata_gp,
 
 ```{r}
 #| echo: fenced
+options(width = 70) # the output width limit
 
 svyglm(u303 ~ strata_gp+ A2101 + A2108_3grp, 
        nhms_surdsg, 
@@ -666,7 +667,6 @@ my_state_sf <- read_sf("administrative_1_state.geojson") %>%
                             "WP Kl" = "W.P. Kuala Lumpur", 
                             "WP Putrajaya" = "W.P. Putrajaya", 
                             "WP Labuan" = "W.P. Labuan"))
-
 ```
 
 4. Join both prevalence by state result and dosm state map.
@@ -677,6 +677,12 @@ my_state_sf <- read_sf("administrative_1_state.geojson") %>%
 
 kcprev_state_mapds <- left_join(kcprev_state, my_state_sf) %>% 
   st_as_sf()
+```
+
+\newpage
+
+```{r}
+#| echo: fenced
 
 kcprev_state_mapds
 ```
@@ -705,8 +711,110 @@ kcprev_state_mapds %>%
 ```
 
 
-
+\newpage
 
 ## Bonus III: Population Pyramid:
 
+Despite weight adjustment which include post-stratification, the total estimated population may differ from the original population. Here, plotting population pyramid can help to compare NHMS estimated population and DOSM 2019 Population
+
+1. Download the DOSM Population 2019 from DOSM opendata
+    -   Some data wrangling needed 
+        -   to exclude data not required
+        -   rename column name
+
+
+```{r}
+library(arrow)
+dosmpop19 <- read_parquet("https://storage.dosm.gov.my/population/population_malaysia.parquet") %>% 
+  filter(date == "2019-01-01",             # to get 2019 population only
+         sex != "overall_sex",             # exclude overall
+         ethnicity == "overall_ethnicity", # exclude overall
+         age != "overall_age") %>%         # exclude overall
+  rename("gender" = "sex") %>% 
+  mutate(type = "dosm",
+         gender = fct_recode(gender, 
+                             "Male" = "male",
+                             "Female" = "female"), 
+         gender = fct_relevel(gender, "Male"),
+         age_grp = case_when(age %in% c("75-79", 
+                                        "80-84", 
+                                        "85+") ~ "75+", 
+                             .default = age), 
+         age_grp = fct_relevel(age_grp, 
+                               "0-4", "5-9", "10-14", 
+                               "15-19", "20-24", "25-29", 
+                               "30-34", "35-39", "40-44", 
+                               "45-49", "50-54", "55-59", 
+                               "60-64", "65-69", "70-74", 
+                               "75+"),
+         population = population * 1000) %>% 
+  select(-c(date, state, ethnicity, age)) %>% # not required 
+  group_by(gender, age_grp, type) %>% 
+  summarise(population = sum(population, na.rm = T)) %>% 
+  ungroup()
+```
+
+::: {.callout-important}
+dosm open website to download the dataset:  
+https://open.dosm.gov.my/data-catalogue/population_malaysia
+:::
+
+
+```{r}
+dosmpop19
+```
+
+2. Calculate Total NHMS Estimated Population
+    -   this require a bit of a work, since we want to calculate all sample
+    -   one way of doing it, is by create a new column, with value of `1`
+    -   this new column need to be done in the original dataset, thus a new survey design need to be constructed
+    - then we can count the unweighted count and the estimated population, by age group and gender, using `svyby(_)` function
+    - save the estimated population to an R object to used later
+
+```{r}
+nhms19ds_all <- nhms19ds %>% 
+  mutate(cholall = 1)
+
+nhms_surdsg_all <- svydesign(id = ~ebid, 
+                             strata = ~state_st, 
+                             weights = ~wtfinal_ncd, 
+                             data = nhms19ds_all, 
+                             nest = TRUE)
+
+nhmspop19 <- svyby(formula = ~cholall, 
+                   by = ~A2104_grp+A2101, 
+                   design = nhms_surdsg_all, 
+                   FUN = svytotal) %>% 
+  as_tibble() %>% 
+  rename("gender" = "A2101", 
+         "age_grp" = "A2104_grp",
+         "population" = "cholall") %>% 
+  mutate(type = "nhms", 
+         age_grp = fct_recode(age_grp, 
+                              "75+" = "75  & above")) %>% 
+  select(-se)
+
+nhmspop19
+```
+
+3. Join DOSM population and NHMS population
+    - and save the join dataset to R object, to be used later
+
+```{r}
+join_pop19 <- full_join(dosmpop19, nhmspop19) %>% 
+  arrange(gender, age_grp) %>% 
+  filter(!age_grp %in% c("0-4", "5-9", "10-14"))
+
+join_pop19
+```
+
+4. we can plot the pyramid plot
+
+```{r}
+join_pop19 %>% 
+  ggplot(aes(x = age_grp, 
+             y = population, 
+             fill = interaction(gender, type))) + 
+  geom_col(position = "dodge")
+```
 
