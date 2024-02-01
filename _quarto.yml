@@ -21,12 +21,26 @@ format:
       text: |
         \usepackage{typearea}
         \usepackage{fontspec}
-        \usepackage{listings} % package to use firacode
-        \usepackage{lstfiracode} % package to use firacode (still not working)
         \usepackage{microtype} % Improves text appearance
         \usepackage{indentfirst} % Indent the first paragraph after a section header
         \usepackage{xcolor} % Add the xcolor package for color definitions
         \usepackage{multicol}
+        \usepackage{listings} % package to use firacode
+        \usepackage{hyperref} % hyperlink
+        \usepackage{url} % Improves URL formatting
+        \hypersetup{
+          breaklinks=true,
+          colorlinks=true,
+          linkcolor=blue,
+          urlcolor=blue
+        }
+        \urlstyle{same} % URLs in the same style as regular text
+        \lstset{
+          basicstyle=\ttfamily,
+          breaklines=true,   % sets automatic line breaking
+          breakatwhitespace=false, % automatic breaks happen at whitespace
+          postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space} % for marking where line breaks
+        }
         \setlength{\parindent}{1.5em} % Adjust paragraph indentation as needed
         \sloppy % Makes TeX less fussy about line breaking
         \hyphenpenalty=10000 % Discourage hyphenation

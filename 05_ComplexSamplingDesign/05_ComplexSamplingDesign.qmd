@@ -11,13 +11,17 @@ pacman::p_load(tidyverse)
 
 Surveys are essential for understanding population characteristics, offering a more efficient and resource-friendly alternative to censuses. Censuses, aiming to collect data from every individual within a population, are historically resource-intensive. In contrast, surveys, whether conducted by governments or researchers, enable effective population inferences with less expenditure.
 
-Simple random sampling, the traditional gold standard, offers a straightforward approach to population inference due to its readily implemented methodology and unbiased estimates. However, its effectiveness wanes in populations with high heterogeneity, potentially leading to underrepresentation of minority groups. This limitation necessitates the exploration of more intricate sampling designs, such as stratified sampling, despite their inherent complexities and potential for biased selection probabilities.
+Simple random sampling, while a traditional gold standard for its straightforward approach and unbiased estimates, often falls short in achieving comprehensive representativeness, particularly in diverse populations. This limitation becomes apparent in the context of the National Health and Morbidity Survey (NHMS), where both national and state-level representativeness are crucial. Simple random sampling might not adequately represent all geographic areas, especially when population densities and distributions vary significantly across different states. This could lead to over representation of more populous areas while leaving less populous regions under-represented.
+
+Furthermore, this sampling method might not effectively capture the diversity within minority groups, as their smaller numbers in the overall population reduce the likelihood of their selection in a simple random sample. To overcome these challenges, NHMS employs more intricate sampling designs like stratified sampling. By dividing the population into distinct strata based on states or regions, and further considering sub-groups within these strata, it ensures that both geographic areas and minority groups are appropriately represented. Although these complex sampling designs introduce potential biases in selection probabilities and are more challenging to implement, they are indispensable for achieving the depth of representativeness required for national health assessments and policy planning.
 
 One of the significant advantages of complex sampling designs is their feasibility without a comprehensive population list, focusing instead on broader stratifications like specific localities, simplifying the sampling process.
 
+\newpage
+
 ### Benefits of Complex Sampling Design
 
-The National Health and Morbidity Survey (NHMS), conducted by the Institute for Public Health (IPH), benefits extensively from complex sampling designs, showcasing several advantages:
+The National Health and Morbidity Survey (NHMS), conducted by the Institut Kesihatan Umum (IKU), benefits extensively from complex sampling designs, showcasing several advantages:
 
 1.  **Cost Efficiency**: By clustering samples within selected strata or areas, operational costs are notably reduced, obviating the need to cover extensive and potentially scattered geographical locations.
 
@@ -31,13 +35,11 @@ Despite their benefits, complex sampling designs require meticulous planning and
 
 ### Example: Sampling Probability of a Sabahan
 
-Problem: Consider a hypothetical scenario within a diverse group of 100 people, composed of 60% Malay, 20% Chinese, 15% Indian, and an additional 5% from other ethnic backgrounds, including 1% Sabahan. How sure are we, than when we randomly select 10 people from the group, at least one of the 10 people will be a Sabahan?
+Problem: Consider a hypothetical scenario within a diverse group of 100 people, composed of 60% Malay, 20% Chinese, 15% Indian, and an additional 5% from other ethnic backgrounds, including 1% Sabahan. How sure are we, than when we randomly select 10 people from the group, at least one of the 10 people will be a Sabahan?  
 
-Answer: To calculate the probability of selecting at least one Sabahan in a 10-person sample, one might initially consider the likelihood of not choosing a Sabahan and subtract this figure from 1. With 99 of the 100 individuals not being Sabahan, the probability of not selecting a Sabahan in a single attempt is 99/100. Over 10 independent selections, this probability becomes (99/100)\^10. Consequently, the probability of selecting at least one Sabahan is 1 - (99/100)\^10, equating to approximately 9.56%. This calculation suggests a close to 10% chance that the sample will include at least one Sabahan.
+Answer: To calculate the probability of selecting at least one Sabahan in a 10-person sample, one might initially consider the likelihood of not choosing a Sabahan and subtract this figure from 1. With 99 of the 100 individuals not being Sabahan, the probability of not selecting a Sabahan in a single attempt is 99/100. Over 10 independent selections, this probability becomes (99/100)\^10. Consequently, the probability of selecting at least one Sabahan is 1 - (99/100)\^10, equating to approximately 9.56%. This calculation suggests a close to 10% chance that the sample will include at least one Sabahan.  
 
-### Conclusion
-
-Complex sampling designs present a pragmatic and efficient approach for conducting extensive surveys like the NHMS. They ensure a representative sample, optimise resource utilisation, and require careful planning and specialised statistical expertise for accurate population inferences.
+Or in other word, since minorities were in fact had lower percentage, when we sample our population, we might even did not get the minorities in our sample!.  
 
 \newpage
 
@@ -47,6 +49,7 @@ In complex survey analysis using the `survey::` package in R, it's crucial to ac
 
 ```{r}
 #| echo: false
+#| tbl-cap: "Required Information for Complex Sampling Design"
 
 tribble(~`Required Information/Specification`, ~`Common NHMS Variable Name`, 
         "Cluster IDs (PSU)", "EB ID", 
@@ -152,6 +155,7 @@ nhms19ds %>%
 ```{r}
 #| echo: false
 #| layout-ncol: 2
+#| tbl-cap: "NHMS NCD 2019 - Cholesterol Module Dataset: Variables List"
 
 library(labelled)
 library(gt)
@@ -358,7 +362,6 @@ svymean(x = ~known_cholN,
     -   In R however, the function will treat proportion as mean of binary outcomes. While treating proportion as mean of binary outcomes is reasonable accepted to calculate the prevalence, however, when calculate the CI, it is preferable to treat apply logit transformation and transformed back to the original scale
     -   the default method used in `svyciprop(_)` function is "logit"
     -   however, to replicate result from SPSS and SUDAAN, the method parameter need to change to "xlogit"
-:::
 
 
 ```{r}
@@ -376,10 +379,9 @@ svyciprop(formula = ~known_cholN,
 
 #### Estimating the Unweighted Sample Proportion
 
+\noindent Can you calculated the sample proportion using the same function?.  
 
 ::: {.callout-tip}
-Can you calculated the sample proportion using the same function?.  
-
 Hint:  
 
 1. Sample Proportion = Unweighted Proportion.
@@ -391,7 +393,7 @@ Hint:
 
 1. To estimates by subpopulation, we use `svyby(_)` function
 
-2. Estimating the unweighted count by state
+2. Estimating the unweighted count by locality (urban vs rual)
     -   Don't forget to use the unweighted design
 
 ```{r}
@@ -405,7 +407,7 @@ svyby(formula = ~known_cholN,
 
 ```
 
-3. Estimating the estimated population by state
+3. Estimating the estimated population by locality (urban vs rual)
 
 ```{r}
 #| echo: fenced
@@ -418,7 +420,7 @@ svyby(formula = ~known_cholN,
 ```
 
 
-4. Estimating the prevalence by state
+4. Estimating the prevalence by locality (urban vs rual)
 
 ```{r}
 #| echo: fenced
@@ -430,7 +432,7 @@ svyby(formula = ~known_cholN,
       na.rm.all = T)
 ```
 
-5. Estimating the prevalence CI by state.
+5. Estimating the prevalence CI by locality (urban vs rual).
     - unfortunately, `svyciprop(_)` can't be used with `svyby(_)` function.
     - to estimate the CI, we need to subset the sample, to only the sub-population.
 
@@ -488,9 +490,11 @@ svyciprop_by <- function(x, by, design,
 ```{r}
 #| echo: fenced
 
-svyciprop_by(x = ~known_cholN, by = ~strata_gp, 
+svyciprop_by(x = ~known_cholN, 
+             by = ~strata_gp, 
              design = nhms_surdsg, 
-             df = degf(nhms_surdsg), method = "xl")
+             df = degf(nhms_surdsg), 
+             method = "xl")
 ```
 
 \newpage 
@@ -549,16 +553,21 @@ this custom function can be simplified, but i make it more general so it can be 
 #### Simple Logistic Regression
 
 ```{r}
+#| echo: fenced
+
 svyglm(known_chol ~ strata_gp, 
        nhms_surdsg, 
        family = quasibinomial) %>% 
   summary()
 ```
 
+\newpage
 
 #### Multiple Logistic Regression
 
 ```{r}
+#| echo: fenced
+
 svyglm(known_chol ~ strata_gp + A2101 + A2108_3grp, 
        nhms_surdsg, 
        family = quasibinomial) %>% 
@@ -566,28 +575,137 @@ svyglm(known_chol ~ strata_gp + A2101 + A2108_3grp,
 ```
 
 
+\newpage
 
 ### Linear Regression
 
 #### Simple Linear Regression
 
 ```{r}
+#| echo: fenced
+
 svyglm(u303 ~ strata_gp, 
        nhms_surdsg, 
        family = gaussian) %>% 
   summary()
 ```
 
+\newpage
+
 #### Multiple Linear Regression
 
 ```{r}
+#| echo: fenced
+
 svyglm(u303 ~ strata_gp+ A2101 + A2108_3grp, 
        nhms_surdsg, 
        family = gaussian) %>% 
   summary()
 ```
 
+\newpage
+
 ## Bonus II: Mapping the Prevalence
+
+We can map our prevalence.  
+
+1. save the prevalence by state into object to be used later
+
+```{r}
+#| echo: fenced
+
+kcprev_state <- svyby(formula = ~known_cholN, 
+                      by = ~state, 
+                      design = nhms_surdsg, 
+                      FUN = svymean, 
+                      na.rm.all = T) %>% 
+  as_tibble()
+
+kcprev_state
+```
+
+2. download the state map (geojson file) from DOSM github page
+
+```{r}
+#| echo: fenced
+#| eval: false
+
+download.file(
+  url = "https://raw.githubusercontent.com/dosm-malaysia/data-open/main/datasets/geodata/administrative_1_state.geojson",
+  destfile = "administrative_1_state.geojson",
+  mode = "wb")
+```
+
+::: {.callout-important}
+dosm github link to download the map dataset: https://raw.githubusercontent.com/dosm-malaysia/data-open/main/datasets
+/geodata/administrative_1_state.geojson
+
+:::
+
+3. in R, map files like geojson and shp file is manipulated using `sf::` package
+    -   load sf package, if not available, please install first.
+
+```{r}
+#| echo: fenced
+
+library(sf)
+```
+
+
+4. convert the geojson file and save in r object.
+    -   in the same time, we can do some data wrangling, to ensure the name of state in dosm dataaset and our dataset is consistent.
+    
+```{r}
+#| echo: fenced
+
+my_state_sf <- read_sf("administrative_1_state.geojson") %>% 
+  arrange(code_state) %>% 
+  mutate(state = fct_recode(state, 
+                            "P. Pinang" = "Pulau Pinang", 
+                            "N. Sembilan" = "Negeri Sembilan", 
+                            "WP Kl" = "W.P. Kuala Lumpur", 
+                            "WP Putrajaya" = "W.P. Putrajaya", 
+                            "WP Labuan" = "W.P. Labuan"))
+
+```
+
+4. Join both prevalence by state result and dosm state map.
+    -   the combined dataset need to convert to sf object
+
+```{r}
+#| echo: fenced
+
+kcprev_state_mapds <- left_join(kcprev_state, my_state_sf) %>% 
+  st_as_sf()
+
+kcprev_state_mapds
+```
+
+::: {.callout-note}
+any sf item must have geometry column, which contain the information of the location
+:::
+
+5. we can then plot the prevalence using ggplot
+
+```{r}
+#| echo: fenced
+#| eval: false
+
+kcprev_state_mapds %>% 
+  ggplot(aes(fill = known_cholN)) + 
+  geom_sf()
+```
+
+```{r}
+#| echo: false
+
+kcprev_state_mapds %>% 
+  ggplot(aes(fill = known_cholN)) + 
+  geom_sf()
+```
+
+
+
 
 ## Bonus III: Population Pyramid:
 
