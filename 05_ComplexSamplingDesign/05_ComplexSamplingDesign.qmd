@@ -695,8 +695,7 @@ any sf item must have geometry column, which contain the information of the loca
 kcprev_state_mapds <- left_join(kcprev_state, my_state_sf) %>% 
   st_as_sf()
 
-kcprev_state_mapds %>% 
-  select(-geometry)
+kcprev_state_mapds
 ```
 
 6. we can then plot the prevalence using ggplot
@@ -732,10 +731,6 @@ ggsave("CholPrevMalMap.png", CholPrevMalMap, height = 4, width = 9)
 Despite weight adjustment which include post-stratification, the total estimated population may differ from the original population. Here, plotting population pyramid can help to compare NHMS estimated population and DOSM 2019 Population
 
 1. Download the DOSM Population 2019 from DOSM opendata
-    -   Some data wrangling needed 
-        -   to exclude data not required
-        -   rename column name
-
 
 ```{r}
 #| echo: fenced
@@ -756,8 +751,53 @@ https://open.dosm.gov.my/data-catalogue/population_malaysia
     -   to exclude data not required
     -   to make data "compatible" with our NHMS dataset
 
+::: {.callout-note appearance="simple"}
+the data wrangling code is in the next page
+:::
+
 
 ```{r}
+#| echo: false
+
+library(arrow)
+dosmpop19 <- read_parquet("population_malaysia.parquet") %>% 
+  filter(date == "2019-01-01",             # to get 2019 population only
+         sex != "overall_sex",             # exclude overall
+         ethnicity == "overall_ethnicity", # exclude overall
+         age != "overall_age") %>%         # exclude overall
+  rename("gender" = "sex") %>% 
+  mutate(type = "dosm",
+         gender = fct_recode(gender, 
+                             "Male" = "male",
+                             "Female" = "female"), 
+         gender = fct_relevel(gender, "Male"),
+         age_grp = case_when(age %in% c("75-79", 
+                                        "80-84", 
+                                        "85+") ~ "75+", 
+                             .default = age), 
+         age_grp = fct_relevel(age_grp, 
+                               "0-4", "5-9", "10-14", 
+                               "15-19", "20-24", "25-29", 
+                               "30-34", "35-39", "40-44", 
+                               "45-49", "50-54", "55-59", 
+                               "60-64", "65-69", "70-74", 
+                               "75+"),
+         population = population * 1000) %>% 
+  select(-c(date, state, ethnicity, age)) %>% # not required 
+  group_by(gender, age_grp, type) %>% 
+  summarise(population = sum(population, na.rm = T)) %>% 
+  ungroup()
+```
+
+```{r}
+#| echo: fenced
+
+dosmpop19
+```
+
+```{r}
+#| echo: fenced
+
 library(arrow)
 dosmpop19 <- read_parquet("population_malaysia.parquet") %>% 
   filter(date == "2019-01-01",             # to get 2019 population only
@@ -789,10 +829,6 @@ dosmpop19 <- read_parquet("population_malaysia.parquet") %>%
 ```
 
 
-```{r}
-dosmpop19
-```
-
 2. Calculate Total NHMS Estimated Population
     -   this require a bit of a work, since we want to calculate all sample
     -   one way of doing it, is by create a new column, with value of `1`
@@ -801,8 +837,14 @@ dosmpop19
     - save the estimated population to an R object to used later
 
 ```{r}
+#| echo: fenced
+
 nhms19ds_all <- nhms19ds %>% 
   mutate(cholall = 1)
+```
+
+```{r}
+#| echo: fenced
 
 nhms_surdsg_all <- svydesign(id = ~ebid, 
                              strata = ~state_st, 
@@ -826,12 +868,16 @@ nhmspop19 <- svyby(formula = ~cholall,
 nhmspop19
 ```
 
+\newpage
+
 3. Join DOSM population and NHMS population
     -   since we want female on left side, the female population need to be in negative form
     -   the `female` also need to be in lower level
     -   and save the join dataset to R object, to be used later
 
 ```{r}
+#| echo: fenced
+
 join_pop19 <- full_join(dosmpop19, nhmspop19) %>% 
   arrange(gender, age_grp) %>% 
   filter(!age_grp %in% c("0-4", "5-9", "10-14")) %>% 
@@ -842,15 +888,21 @@ join_pop19 <- full_join(dosmpop19, nhmspop19) %>%
 join_pop19
 ```
 
+\newpage
+
 4. we can plot the pyramid plot
 
 ```{r}
+#| echo: fenced
+
 join_pop19 %>% 
   ggplot(aes(x = age_grp, 
              y = population, 
              fill = interaction(gender, type))) + 
   geom_col(position = "dodge") + 
-  scale_y_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0),
+                     labels = function(x) scales::label_comma()(abs(x)),  
+                     breaks = scales::pretty_breaks()) +
   scale_fill_manual(values = hcl(h = c(15, 195, 15, 195), 
                                  c = 100, 
                                  l = 65, 
