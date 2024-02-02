@@ -7,4 +7,4 @@
 
 ## Contact Me
 
--   Any suggestion can [contact me](azmi.suliman@moh.gov.my). Please put "Re: IKU_RBook" as subject when email me about this book.
+-   Any suggestion can contact me via [this email](mailto:azmi.suliman@moh.gov.my?subject=Re:%20IKU_RBook). Please put "Re: IKU_RBook" as subject when email me about this book.
