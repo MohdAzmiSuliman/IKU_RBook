@@ -5,11 +5,12 @@ book:
   title: "R Training Book for IKU"
   chapters:
     - index.qmd
-    - './01_Introduction/01_Introduction.qmd'
-    - './02_DataWrangling/02_DataWrangling.qmd'
-    - './03_DataVizualization/03_DataVizualization.qmd'
-    - './04_BasicStatisticalAnalysis/04_BasicStatisticalAnalysis.qmd'
-    - './05_ComplexSamplingDesign/05_ComplexSamplingDesign.qmd'
+    - './01_HowToUseThisBook/01_HowToUseThisBook.qmd'
+    - './02_Introduction/02_Introduction.qmd'
+    - './03_DataWrangling/03_DataWrangling.qmd'
+    - './04_DataVizualization/04_DataVizualization.qmd'
+    - './05_BasicStatisticalAnalysis/05_BasicStatisticalAnalysis.qmd'
+    - './06_ComplexSamplingDesign/06_ComplexSamplingDesign.qmd'
 
 format:
   pdf:
