@@ -11,15 +11,85 @@ This book however was not intended to be a statistical book, nor should not be t
 
 In addition of conducting the test in standard way, I'll also how to create a nice result table using related packages.
 
+::: callout-note
+dataset used in this example can be downloaded from github site: https://github.com/MohdAzmiSuliman/IKU_RBook/tree/master/dataset
+:::
+
+## Setup Project
+
+1.  Setup your project
+    -   Open your RStudio
+    -   Create New Project
+2.  Create Quarto document
+    -   update the YAML metadata to make the document self-contained
+
+```{r}
+#| echo: true
+#| eval: false
+
+---
+title: "Sesi 3 - Basic Statistical Analysis"
+format:
+  html:
+    embed-resources: true
+---
+
+```
+
+
 ## Bivariate Analyses of Categorical Data
 
 Bivariate analysis involves examining the relationship or association between to variables. When both variables are categorical, bivariate analysis looks at how these categories are related. The bivariate analyses often involve the use of contingency tables, also know as cross-tabulation or crosstab.
 
-
-
 ### Contingency Table
 
+Contigency table, or crosstab, is a simple matrix that display the frequency of occurence of combination of two categories for two categorical variable.
 
+For example, this contigency table show a cross tabulation between smoking status and lung cancer outcome. 
+
+```{r}
+#| echo: false
+#| tbl-cap: "Contigency Table Structure"
+
+library(tibble)
+library(gt)
+
+tribble(
+  ~Status,        ~"Lung Cancer", ~"No Lung Cancer", ~"Total",
+  "Smoker",       "a",      "b",         "a+b",
+  "Non-Smoker",   "c",      "d",         "c+d",
+  "Total",        "a+c",    "b+d",       "N"
+) %>% 
+  gt() %>% 
+  cols_align(align = "center", columns = everything())
+```
+
+In this example:
+
+-   the independent variable (or the predictor, i.e. the smoking status), is the row
+-   the dependent variable (or the outcome, i.e. the  cancer status), is the column
+-   The letters a, b, c, and d represent the cell frequencies:
+    -   a: The number of smokers who have the disease.
+    -   b: The number of smokers who do not have the disease.
+    -   c: The number of non-smokers who have the disease.
+    -   d: The number of non-smokers who do not have the disease.
+-   "Total" is the sum of the frequencies in the respective row or column, with N being the grand total of all observations.
+
+### Pearson's Chi-Square Test
+
+Pearson Chi-square Test is a statistical test used to determine whether there is a significant association between two categorical variable.
+
+Pearson Chi-square Test is conducted with these assumptions:
+
+-   both variables must be **categorical** (either nominal or ordinal)
+-   the observation must be **independence**. This mean that the outcome of one observation is not influency by the outcome of another observation
+-   the groupings are **mutually exclusive**
+-   <20% of celss have **expected frequency of <5**
+-   minimum **expected frequency if >1**
+
+Example: Gender vs Employment Status
+
+1.    Prepare 
 
 ## Bivariate Analyses of Numerical Data
 
