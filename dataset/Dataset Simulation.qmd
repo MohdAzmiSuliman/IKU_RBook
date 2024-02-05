@@ -1,0 +1,37 @@
+---
+title: "Dataset Simulation/Generation"
+date: last-modified
+date-format: "dddd, DD/MM/YYYY"
+format: 
+  html:
+    theme: minty
+    code-fold: true
+    code-copy: hover
+    code-overflow: wrap
+    code-tools: true
+    df-print: paged
+    default-image-extension: svg
+    embed-resources: true
+    page-layout: full
+    reference-location: margin
+    title-block-banner: true
+    title-block-style: default
+    fontsize: .9em
+    mainfont: Rasa
+    monofont: 'Fira Code'
+execute: 
+  echo: true
+  warning: false
+number-sections: true
+toc: true
+fig-dpi: 320
+dpi: 320
+---
+
+# Setup
+
+```{r}
+pacman::p_load(tidyverse, labelled, gtsummary, survey, gt, stringi, summarytools, 
+               haven, simstudy)
+```
+

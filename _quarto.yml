@@ -52,10 +52,10 @@ format:
       - left=25mm
       - heightrounded
       - bindingoffset=10mm
-    mainfont: Inter
+    mainfont: Rasa
     mainfontoptions:
       - Path=./font/
-      - Extension=.otf
+      - Extension=.ttf
       - UprightFont=*-Regular
     monofont: FiraCode
     monofontoptions:

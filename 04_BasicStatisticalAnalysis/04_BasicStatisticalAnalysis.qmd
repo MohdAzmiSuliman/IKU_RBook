@@ -1,18 +1,21 @@
 # Statistical Tests
 
 Several statistical tests will be covered, which will be grouped into
-    -   Bivariate analyses of categorical data
-    -   Bivariate analyses of numerical data
-    -   Linear regression
-    -   Logistic regression
 
-This book however was not intended to be a statistical book, nor should not be the main reference for statistical analyses. Please refer your statistical texts book for further information.  
+-   Bivariate analyses of categorical data
+-   Bivariate analyses of numerical data
+-   Linear regression
+-   Logistic regression
+
+This book however was not intended to be a statistical book, nor should not be the main reference for statistical analyses. Please refer your statistical texts book for further information.
 
 In addition of conducting the test in standard way, I'll also how to create a nice result table using related packages.
 
 ## Bivariate Analyses of Categorical Data
 
 Bivariate analysis involves examining the relationship or association between to variables. When both variables are categorical, bivariate analysis looks at how these categories are related. The bivariate analyses often involve the use of contingency tables, also know as cross-tabulation or crosstab.
+
+
 
 ### Contingency Table
 
