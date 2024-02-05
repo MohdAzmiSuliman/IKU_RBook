@@ -19,32 +19,31 @@ format:
       text: |
         \usepackage{typearea}
         \usepackage{fontspec}
-        \usepackage{microtype} % Improves text appearance
-        \usepackage{indentfirst} % Indent the first paragraph after a section header
-        \usepackage{xcolor} % Add the xcolor package for color definitions
+        \usepackage{microtype}
+        \usepackage{indentfirst}
+        \usepackage{xcolor}
         \usepackage{multicol}
-        \usepackage{listings} % package to use firacode
-        \usepackage{hyperref} % hyperlink
-        \usepackage{url} % Improves URL formatting
+        \usepackage{listings}
+        \usepackage{hyperref}
+        \usepackage{url}
         \hypersetup{
           breaklinks=true,
           colorlinks=true,
           linkcolor=blue,
           urlcolor=blue
         }
-        \urlstyle{same} % URLs in the same style as regular text
+        \urlstyle{same}
         \lstset{
           basicstyle=\ttfamily,
-          breaklines=true,   % sets automatic line breaking
-          breakatwhitespace=false, % automatic breaks happen at whitespace
-          postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space} % for marking where line breaks
+          breaklines=true,
+          breakatwhitespace=false,
+          postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}
         }
-        \setlength{\parindent}{1.5em} % Adjust paragraph indentation as needed
-        \sloppy % Makes TeX less fussy about line breaking
-        \hyphenpenalty=10000 % Discourage hyphenation
-        \exhyphenpenalty=10000 % Discourage hyphenation
-        \newcommand{\highlighttext}[1]{\colorbox{gray!30}{\textcolor{purple}{#1}}} % New command
-        % Define a new command for inline code styling
+        \setlength{\parindent}{1.5em}
+        \sloppy
+        \hyphenpenalty=10000
+        \exhyphenpenalty=10000
+        \newcommand{\highlighttext}[1]{\colorbox{gray!30}{\textcolor{purple}{#1}}}
     papersize: a4
     geometry:
       - top=30mm
