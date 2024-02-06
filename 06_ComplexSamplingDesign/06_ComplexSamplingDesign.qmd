@@ -638,9 +638,8 @@ download.file(
 ```
 
 ::: {.callout-important}
-dosm github link to download the map dataset: https://raw.githubusercontent.com/dosm-malaysia/data-open/main/datasets
-/geodata/administrative_1_state.geojson
-
+dosm github link to download the map dataset: https://raw.githubusercontent.com/dosm-malaysia/
+data-open/main/datasets/geodata/administrative_1_state.geojson
 :::
 
 3. in R, map files like geojson and shp file is manipulated using `sf::` package
