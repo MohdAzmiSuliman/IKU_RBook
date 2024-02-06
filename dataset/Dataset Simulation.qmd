@@ -241,18 +241,19 @@ asthmads_clean <- asthma_ds0 %>%
   relocate(BMI_Pre, BMI_PreCat, .after = Weight_Pre) %>% 
   relocate(BMI_Post, BMI_PostCat, .after = Weight_Post) %>% 
   set_variable_labels(Age = "Age (year)", 
-                                WorkStatus = "Employment", 
-                                Height = "Height (cm)", 
-                                Weight_Pre = "Weight (kg) - before", 
-                                PA_HW = "Physical Activity (total hour per week)", 
-                                Weight_Post = "Weight (kg) - after", 
-                                Tx2 = "Treatment Group", 
-                                PEFR_Pre = "PEFR (L/min) - before", 
-                                PEFR_Post = "PEFR (L/min) - after", 
-                                SxWheeze_Pre = "Symptom Wheezing - before", 
-                                SxWheeze_Post = "Symptom Wheezing - after", 
-                                PS_Pre = "Pains Score - before", 
-                                PS_Post = "Pains Score - after")
+                      WorkStatus = "Employment", 
+                      Height = "Height (cm)", 
+                      Ht_m = "Height (m)", 
+                      Weight_Pre = "Weight (kg) - before", 
+                      PA_HW = "Physical Activity (total hour per week)", 
+                      Weight_Post = "Weight (kg) - after", 
+                      Tx2 = "Treatment Group", 
+                      PEFR_Pre = "PEFR (L/min) - before", 
+                      PEFR_Post = "PEFR (L/min) - after", 
+                      SxWheeze_Pre = "Symptom Wheezing - before", 
+                      SxWheeze_Post = "Symptom Wheezing - after", 
+                      PS_Pre = "Pains Score - before", 
+                      PS_Post = "Pains Score - after")
 
 asthmads_clean
 ```
@@ -261,46 +262,46 @@ asthmads_clean
 ## Export
 
 ```{r}
-#| eval: false
+#| eval: true
 
-# write_sav(asthma_ds, "asthma_ds.sav")
-# write_sav(asthma24_long, "asthma24_long.sav")
-# write_sav(asthma24_wide, "asthma24_wide.sav")
-# 
-# write_sav(asthma_pre, "asthma_pre.sav")
-# write_sav(asthma_post, "asthma_post.sav")
-# 
-# write_sav(asthmads_clean, "asthmads_clean.sav")
-# 
-# asthmads_sav <- read_sav("asthma_ds.sav")
-# 
-# asthma_ds_colnamelabel <- map(asthmads_sav, possibly(label, NA)) %>% 
-#   enframe(name = "col_name", value = "col_lab") %>% 
-#   mutate(col_lab = unlist(col_lab))
-# 
-# asthma_ds_vallabel <-map(asthmads_sav, ~ attr(.x, "labels")) 
-# 
-# lab_ext <- function(column) {
-#     lbls <- attr(column, "labels")
-#     if (!is.null(lbls)) {
-#         paste(as.character(lbls), names(lbls), sep = ": ", collapse = "; ")
-#     } else {
-#         NA_character_
-#     }
-# }
-# 
-# asthma_ds_vallabel <- map(asthmads_sav, lab_ext) %>% 
-#   enframe(name = "col_name", value = "val_lab") %>% 
-#   mutate(val_lab = unlist(val_lab))
-# 
-# asthma_ds_dict <- left_join(asthma_ds_colnamelabel, 
-#                             asthma_ds_vallabel)
-# 
-# gt(asthma_ds_dict) %>%
-#   cols_label(col_name = "Column Name",
-#              col_lab = "Column Label",
-#              val_lab = "Value Label") %>%
-#   gtsave(., filename = "asthma_data_dictionary.docx")
+write_sav(asthma_ds, "asthma_ds.sav")
+write_sav(asthma24_long, "asthma24_long.sav")
+write_sav(asthma24_wide, "asthma24_wide.sav")
+
+write_sav(asthma_pre, "asthma_pre.sav")
+write_sav(asthma_post, "asthma_post.sav")
+
+write_sav(asthmads_clean, "asthmads_clean.sav")
+
+asthmads_sav <- read_sav("asthma_ds.sav")
+
+asthma_ds_colnamelabel <- map(asthmads_sav, possibly(label, NA)) %>%
+  enframe(name = "col_name", value = "col_lab") %>%
+  mutate(col_lab = unlist(col_lab))
+
+asthma_ds_vallabel <-map(asthmads_sav, ~ attr(.x, "labels"))
+
+lab_ext <- function(column) {
+    lbls <- attr(column, "labels")
+    if (!is.null(lbls)) {
+        paste(as.character(lbls), names(lbls), sep = ": ", collapse = "; ")
+    } else {
+        NA_character_
+    }
+}
+
+asthma_ds_vallabel <- map(asthmads_sav, lab_ext) %>%
+  enframe(name = "col_name", value = "val_lab") %>%
+  mutate(val_lab = unlist(val_lab))
+
+asthma_ds_dict <- left_join(asthma_ds_colnamelabel,
+                            asthma_ds_vallabel)
+
+gt(asthma_ds_dict) %>%
+  cols_label(col_name = "Column Name",
+             col_lab = "Column Label",
+             val_lab = "Value Label") %>%
+  gtsave(., filename = "asthma_data_dictionary.docx")
 ```
 
 
