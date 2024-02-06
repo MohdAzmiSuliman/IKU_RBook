@@ -61,6 +61,14 @@ format:
       - ItalicFont =*-Italic
       - BoldFont=*-Bold
       - BoldItalicFont=*-BoldItalic
+    sansfont: NotoSans
+    sansfontoptions:
+      - Path=./font/NotoSans/
+      - Extension=.ttf
+      - UprightFont=*-Regular
+      - ItalicFont =*-Italic
+      - BoldFont=*-Bold
+      - BoldItalicFont=*-BoldItalic
     monofont: FiraCode
     monofontoptions:
       - Path=./font/FiraCode/
