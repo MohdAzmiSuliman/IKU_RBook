@@ -4697,6 +4697,7 @@ window.onload = function() {
 <div class="cell">
 <details open class="code-fold">
 <summary>Code</summary>
+<<<<<<< HEAD
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write_sav(asthma_ds, &quot;asthma_ds.sav&quot;)</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># write_sav(asthma24_long, &quot;asthma24_long.sav&quot;)</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># write_sav(asthma24_wide, &quot;asthma24_wide.sav&quot;)</span></span>
@@ -4735,6 +4736,46 @@ window.onload = function() {
 <span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="co">#              col_lab = &quot;Column Label&quot;,</span></span>
 <span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="co">#              val_lab = &quot;Value Label&quot;) %&gt;%</span></span>
 <span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="co">#   gtsave(., filename = &quot;asthma_data_dictionary.docx&quot;)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+=======
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthma_ds, <span class="st">&quot;asthma_ds.sav&quot;</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthma24_long, <span class="st">&quot;asthma24_long.sav&quot;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthma24_wide, <span class="st">&quot;asthma24_wide.sav&quot;</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthma_pre, <span class="st">&quot;asthma_pre.sav&quot;</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthma_post, <span class="st">&quot;asthma_post.sav&quot;</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthmads_clean, <span class="st">&quot;asthmads_clean.sav&quot;</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>asthmads_sav <span class="ot">&lt;-</span> <span class="fu">read_sav</span>(<span class="st">&quot;asthma_ds.sav&quot;</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>asthma_ds_colnamelabel <span class="ot">&lt;-</span> <span class="fu">map</span>(asthmads_sav, <span class="fu">possibly</span>(label, <span class="cn">NA</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">enframe</span>(<span class="at">name =</span> <span class="st">&quot;col_name&quot;</span>, <span class="at">value =</span> <span class="st">&quot;col_lab&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_lab =</span> <span class="fu">unlist</span>(col_lab))</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>asthma_ds_vallabel <span class="ot">&lt;-</span><span class="fu">map</span>(asthmads_sav, <span class="sc">~</span> <span class="fu">attr</span>(.x, <span class="st">&quot;labels&quot;</span>))</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>lab_ext <span class="ot">&lt;-</span> <span class="cf">function</span>(column) {</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    lbls <span class="ot">&lt;-</span> <span class="fu">attr</span>(column, <span class="st">&quot;labels&quot;</span>)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(lbls)) {</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">paste</span>(<span class="fu">as.character</span>(lbls), <span class="fu">names</span>(lbls), <span class="at">sep =</span> <span class="st">&quot;: &quot;</span>, <span class="at">collapse =</span> <span class="st">&quot;; &quot;</span>)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        <span class="cn">NA_character_</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>asthma_ds_vallabel <span class="ot">&lt;-</span> <span class="fu">map</span>(asthmads_sav, lab_ext) <span class="sc">%&gt;%</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">enframe</span>(<span class="at">name =</span> <span class="st">&quot;col_name&quot;</span>, <span class="at">value =</span> <span class="st">&quot;val_lab&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">val_lab =</span> <span class="fu">unlist</span>(val_lab))</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>asthma_ds_dict <span class="ot">&lt;-</span> <span class="fu">left_join</span>(asthma_ds_colnamelabel,</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>                            asthma_ds_vallabel)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(asthma_ds_dict) <span class="sc">%&gt;%</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(<span class="at">col_name =</span> <span class="st">&quot;Column Name&quot;</span>,</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>             <span class="at">col_lab =</span> <span class="st">&quot;Column Label&quot;</span>,</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>             <span class="at">val_lab =</span> <span class="st">&quot;Value Label&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gtsave</span>(., <span class="at">filename =</span> <span class="st">&quot;asthma_data_dictionary.docx&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+>>>>>>> 66601553943a9558ef1fa8bddb1cd14e1fc4e31b
 </details>
 </div>
 <!-- -->
@@ -5446,6 +5487,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb10-276"><a href="#cb10-276" aria-hidden="true" tabindex="-1"></a><span class="fu">## Export</span></span>
 <span id="cb10-277"><a href="#cb10-277" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-280"><a href="#cb10-280" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<<<<<<< HEAD
 <span id="cb10-281"><a href="#cb10-281" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
 <span id="cb10-282"><a href="#cb10-282" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-283"><a href="#cb10-283" aria-hidden="true" tabindex="-1"></a><span class="co"># write_sav(asthma_ds, &quot;asthma_ds.sav&quot;)</span></span>
@@ -5486,6 +5528,48 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb10-318"><a href="#cb10-318" aria-hidden="true" tabindex="-1"></a><span class="co">#              col_lab = &quot;Column Label&quot;,</span></span>
 <span id="cb10-319"><a href="#cb10-319" aria-hidden="true" tabindex="-1"></a><span class="co">#              val_lab = &quot;Value Label&quot;) %&gt;%</span></span>
 <span id="cb10-320"><a href="#cb10-320" aria-hidden="true" tabindex="-1"></a><span class="co">#   gtsave(., filename = &quot;asthma_data_dictionary.docx&quot;)</span></span>
+=======
+<span id="cb10-281"><a href="#cb10-281" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: true</span></span>
+<span id="cb10-282"><a href="#cb10-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-283"><a href="#cb10-283" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthma_ds, <span class="st">&quot;asthma_ds.sav&quot;</span>)</span>
+<span id="cb10-284"><a href="#cb10-284" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthma24_long, <span class="st">&quot;asthma24_long.sav&quot;</span>)</span>
+<span id="cb10-285"><a href="#cb10-285" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthma24_wide, <span class="st">&quot;asthma24_wide.sav&quot;</span>)</span>
+<span id="cb10-286"><a href="#cb10-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-287"><a href="#cb10-287" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthma_pre, <span class="st">&quot;asthma_pre.sav&quot;</span>)</span>
+<span id="cb10-288"><a href="#cb10-288" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthma_post, <span class="st">&quot;asthma_post.sav&quot;</span>)</span>
+<span id="cb10-289"><a href="#cb10-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-290"><a href="#cb10-290" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sav</span>(asthmads_clean, <span class="st">&quot;asthmads_clean.sav&quot;</span>)</span>
+<span id="cb10-291"><a href="#cb10-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-292"><a href="#cb10-292" aria-hidden="true" tabindex="-1"></a>asthmads_sav <span class="ot">&lt;-</span> <span class="fu">read_sav</span>(<span class="st">&quot;asthma_ds.sav&quot;</span>)</span>
+<span id="cb10-293"><a href="#cb10-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-294"><a href="#cb10-294" aria-hidden="true" tabindex="-1"></a>asthma_ds_colnamelabel <span class="ot">&lt;-</span> <span class="fu">map</span>(asthmads_sav, <span class="fu">possibly</span>(label, <span class="cn">NA</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-295"><a href="#cb10-295" aria-hidden="true" tabindex="-1"></a>  <span class="fu">enframe</span>(<span class="at">name =</span> <span class="st">&quot;col_name&quot;</span>, <span class="at">value =</span> <span class="st">&quot;col_lab&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-296"><a href="#cb10-296" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_lab =</span> <span class="fu">unlist</span>(col_lab))</span>
+<span id="cb10-297"><a href="#cb10-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-298"><a href="#cb10-298" aria-hidden="true" tabindex="-1"></a>asthma_ds_vallabel <span class="ot">&lt;-</span><span class="fu">map</span>(asthmads_sav, <span class="sc">~</span> <span class="fu">attr</span>(.x, <span class="st">&quot;labels&quot;</span>))</span>
+<span id="cb10-299"><a href="#cb10-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-300"><a href="#cb10-300" aria-hidden="true" tabindex="-1"></a>lab_ext <span class="ot">&lt;-</span> <span class="cf">function</span>(column) {</span>
+<span id="cb10-301"><a href="#cb10-301" aria-hidden="true" tabindex="-1"></a>    lbls <span class="ot">&lt;-</span> <span class="fu">attr</span>(column, <span class="st">&quot;labels&quot;</span>)</span>
+<span id="cb10-302"><a href="#cb10-302" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(lbls)) {</span>
+<span id="cb10-303"><a href="#cb10-303" aria-hidden="true" tabindex="-1"></a>        <span class="fu">paste</span>(<span class="fu">as.character</span>(lbls), <span class="fu">names</span>(lbls), <span class="at">sep =</span> <span class="st">&quot;: &quot;</span>, <span class="at">collapse =</span> <span class="st">&quot;; &quot;</span>)</span>
+<span id="cb10-304"><a href="#cb10-304" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb10-305"><a href="#cb10-305" aria-hidden="true" tabindex="-1"></a>        <span class="cn">NA_character_</span></span>
+<span id="cb10-306"><a href="#cb10-306" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-307"><a href="#cb10-307" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-308"><a href="#cb10-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-309"><a href="#cb10-309" aria-hidden="true" tabindex="-1"></a>asthma_ds_vallabel <span class="ot">&lt;-</span> <span class="fu">map</span>(asthmads_sav, lab_ext) <span class="sc">%&gt;%</span></span>
+<span id="cb10-310"><a href="#cb10-310" aria-hidden="true" tabindex="-1"></a>  <span class="fu">enframe</span>(<span class="at">name =</span> <span class="st">&quot;col_name&quot;</span>, <span class="at">value =</span> <span class="st">&quot;val_lab&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-311"><a href="#cb10-311" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">val_lab =</span> <span class="fu">unlist</span>(val_lab))</span>
+<span id="cb10-312"><a href="#cb10-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-313"><a href="#cb10-313" aria-hidden="true" tabindex="-1"></a>asthma_ds_dict <span class="ot">&lt;-</span> <span class="fu">left_join</span>(asthma_ds_colnamelabel,</span>
+<span id="cb10-314"><a href="#cb10-314" aria-hidden="true" tabindex="-1"></a>                            asthma_ds_vallabel)</span>
+<span id="cb10-315"><a href="#cb10-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-316"><a href="#cb10-316" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(asthma_ds_dict) <span class="sc">%&gt;%</span></span>
+<span id="cb10-317"><a href="#cb10-317" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(<span class="at">col_name =</span> <span class="st">&quot;Column Name&quot;</span>,</span>
+<span id="cb10-318"><a href="#cb10-318" aria-hidden="true" tabindex="-1"></a>             <span class="at">col_lab =</span> <span class="st">&quot;Column Label&quot;</span>,</span>
+<span id="cb10-319"><a href="#cb10-319" aria-hidden="true" tabindex="-1"></a>             <span class="at">val_lab =</span> <span class="st">&quot;Value Label&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-320"><a href="#cb10-320" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gtsave</span>(., <span class="at">filename =</span> <span class="st">&quot;asthma_data_dictionary.docx&quot;</span>)</span>
+>>>>>>> 66601553943a9558ef1fa8bddb1cd14e1fc4e31b
 <span id="cb10-321"><a href="#cb10-321" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb10-322"><a href="#cb10-322" aria-hidden="true" tabindex="-1"></a></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>

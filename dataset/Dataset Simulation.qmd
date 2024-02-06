@@ -262,8 +262,9 @@ asthmads_clean
 ## Export
 
 ```{r}
-#| eval: false
+#| eval: true
 
+<<<<<<< HEAD
 # write_sav(asthma_ds, "asthma_ds.sav")
 # write_sav(asthma24_long, "asthma24_long.sav")
 # write_sav(asthma24_wide, "asthma24_wide.sav")
@@ -302,6 +303,46 @@ asthmads_clean
 #              col_lab = "Column Label",
 #              val_lab = "Value Label") %>%
 #   gtsave(., filename = "asthma_data_dictionary.docx")
+=======
+write_sav(asthma_ds, "asthma_ds.sav")
+write_sav(asthma24_long, "asthma24_long.sav")
+write_sav(asthma24_wide, "asthma24_wide.sav")
+
+write_sav(asthma_pre, "asthma_pre.sav")
+write_sav(asthma_post, "asthma_post.sav")
+
+write_sav(asthmads_clean, "asthmads_clean.sav")
+
+asthmads_sav <- read_sav("asthma_ds.sav")
+
+asthma_ds_colnamelabel <- map(asthmads_sav, possibly(label, NA)) %>%
+  enframe(name = "col_name", value = "col_lab") %>%
+  mutate(col_lab = unlist(col_lab))
+
+asthma_ds_vallabel <-map(asthmads_sav, ~ attr(.x, "labels"))
+
+lab_ext <- function(column) {
+    lbls <- attr(column, "labels")
+    if (!is.null(lbls)) {
+        paste(as.character(lbls), names(lbls), sep = ": ", collapse = "; ")
+    } else {
+        NA_character_
+    }
+}
+
+asthma_ds_vallabel <- map(asthmads_sav, lab_ext) %>%
+  enframe(name = "col_name", value = "val_lab") %>%
+  mutate(val_lab = unlist(val_lab))
+
+asthma_ds_dict <- left_join(asthma_ds_colnamelabel,
+                            asthma_ds_vallabel)
+
+gt(asthma_ds_dict) %>%
+  cols_label(col_name = "Column Name",
+             col_lab = "Column Label",
+             val_lab = "Value Label") %>%
+  gtsave(., filename = "asthma_data_dictionary.docx")
+>>>>>>> 66601553943a9558ef1fa8bddb1cd14e1fc4e31b
 ```
 
 
