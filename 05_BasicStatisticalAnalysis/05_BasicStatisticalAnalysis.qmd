@@ -15,7 +15,7 @@ In addition of conducting the test in standard way, I'll also how to create a ni
 dataset used in this example can be downloaded from github site: https://github.com/MohdAzmiSuliman/IKU_RBook/tree/master/dataset
 :::
 
-## Setup Project
+## Practical: Setup Project
 
 1.  Setup your project
     -   Open your RStudio
@@ -36,7 +36,6 @@ format:
 
 ```
 
-
 ## Bivariate Analyses of Categorical Data
 
 Bivariate analysis involves examining the relationship or association between to variables. When both variables are categorical, bivariate analysis looks at how these categories are related. The bivariate analyses often involve the use of contingency tables, also know as cross-tabulation or crosstab.
@@ -45,7 +44,7 @@ Bivariate analysis involves examining the relationship or association between to
 
 Contigency table, or crosstab, is a simple matrix that display the frequency of occurence of combination of two categories for two categorical variable.
 
-For example, this contigency table show a cross tabulation between smoking status and lung cancer outcome. 
+For example, this contigency table show a cross tabulation between smoking status and lung cancer outcome.
 
 ```{r}
 #| echo: false
@@ -67,13 +66,79 @@ tribble(
 In this example:
 
 -   the independent variable (or the predictor, i.e. the smoking status), is the row
--   the dependent variable (or the outcome, i.e. the  cancer status), is the column
+-   the dependent variable (or the outcome, i.e. the cancer status), is the column
 -   The letters a, b, c, and d represent the cell frequencies:
     -   a: The number of smokers who have the disease.
     -   b: The number of smokers who do not have the disease.
     -   c: The number of non-smokers who have the disease.
     -   d: The number of non-smokers who do not have the disease.
 -   "Total" is the sum of the frequencies in the respective row or column, with N being the grand total of all observations.
+
+\newpage
+
+Example: Gender vs Employment Status
+
+0.  Download dataset
+    -   we will be using the `asthmads_clean.sav` dataset
+    -   this code below download directly from github package into your working directory
+    -   otherwise, you may download from the link: https://github.com/MohdAzmiSuliman/IKU_RBook/ raw/master/dataset/asthmads_clean.sav and copy to the working directory
+
+```{r}
+#| echo: fenced
+#| eval: false
+
+download.file(
+  url = "https://github.com/MohdAzmiSuliman/IKU_RBook/raw/master/dataset/asthmads_clean.sav", 
+  destfile = "asthmads_clean.sav", mode = "wb")
+```
+
+1.  Import dataset
+
+```{r}
+#| echo: fenced
+library(tidyverse)
+library(haven)
+
+asthmads <- read_sav("asthmads_clean.sav") %>% 
+  as_factor()
+asthmads
+```
+
+2.  Create Contingency Table
+
+```{r}
+#| echo: fenced
+
+with(asthmads, table(Gender, WorkStatus))
+```
+
+3.  ***BONUS 1***: We can also use `tidyverse::`, `janitor::` and `gt::` package to create nice looking table with total row and total column
+
+```{r}
+#| echo: fenced
+#| tbl-cap: "2x2 Contigency Table for Gender by Employment Status, using tidyverse, janitor and gt"
+
+asthmads %>%
+  count(Gender, WorkStatus) %>%
+  pivot_wider(names_from = WorkStatus, values_from = n, 
+              values_fill = list(n = 0)) %>%
+  janitor::adorn_totals(c("row", "col")) %>% 
+  gt()
+```
+
+3.  ***BONUS 2***: We can also use `gtsummary::` package to create nice looking table with total row and total column
+
+```{r}
+#| echo: fenced
+#| tbl-cap: "2x2 Contigency Table for Gender by Employment Status, using gtsummary"
+
+library(gtsummary)
+
+asthmads %>%
+  tbl_summary(include = Gender, 
+              by = WorkStatus, 
+              digits = all_categorical() ~ c(0,1))
+```
 
 ### Pearson's Chi-Square Test
 
@@ -84,14 +149,279 @@ Pearson Chi-square Test is conducted with these assumptions:
 -   both variables must be **categorical** (either nominal or ordinal)
 -   the observation must be **independence**. This mean that the outcome of one observation is not influency by the outcome of another observation
 -   the groupings are **mutually exclusive**
--   <20% of celss have **expected frequency of <5**
--   minimum **expected frequency if >1**
+-   \<20% of celss have **expected frequency of \<5**
+-   minimum **expected frequency if \>1**
 
 Example: Gender vs Employment Status
 
-1.    Prepare 
+1.  Refer previous part to create contingency table
+2.  Calculate the chi-square test
+
+```{r}
+#| echo: fenced
+
+with(asthmads, table(Gender, WorkStatus)) %>% 
+  chisq.test(., correct = F)
+```
+
+3.  Check the test's assumptions
+
+```{r}
+#| echo: fenced
+
+with(asthmads, table(Gender, WorkStatus)) %>% 
+  chisq.test(., correct = F) %>% 
+  .$expected
+```
+
+::: callout-tip
+If the assumptions for chi-square is violated, R will show warning message
+
+**`In chisq.test(.) : Chi-squared approximation may be incorrect`**
+
+which is most likely due to violation of small sample assumptions.
+:::
+
+4.  ***Bonus***: we can create a nice looking table with gtsummary
+
+```{r}
+#| echo: fenced
+#| tbl-cap: "Association between Gender and Employment Status"
+
+library(gtsummary)
+
+asthmads %>%
+  tbl_summary(include = Gender, 
+              by = WorkStatus, 
+              digits = all_categorical() ~ c(0,1)) %>% 
+  add_p(test = all_categorical() ~ "chisq.test", 
+        test.args = all_tests("chisq.test") ~ list(correct = F))
+```
+
+### Small Sample
+
+Pearson's Chi-square is only reliable with medium to large datasets. There are two (2) assumptions in the test that might be violated for a small sample, which were (1) \<20% of cells have an expected frequency of \>5 and (2) minimum expected frequency \> 1.
+
+There are two alternatives for a small sample, namely:
+
+-   Yates' Correction for Continuity
+-   Fisher Exact Test
+
+#### Yates' Correction for Continuity
+
+Yates' correction adjust the Chi-square statistics to account for the overestimation of significance due to the continuity assumption of the chi-square distribution.
+
+In R, Yates' correction is the default option for Pearson Chi-square
+
+::: callout-note
+While Yates' correction is used for small sample (especially when it violate the chi-square assumptions), Yates' correction is not preferable for moderate or large sample, as it can be overly conservative, increasing the risk of Type II error
+:::
+
+```{r}
+#| echo: fenced
+
+with(asthmads, table(Gender, WorkStatus)) %>% 
+  chisq.test(.)
+```
+
+```{r}
+#| echo: fenced
+
+asthmads %>%
+  tbl_summary(include = Gender, 
+              by = WorkStatus, 
+              digits = all_categorical() ~ c(0,1)) %>% 
+  add_p()
+```
+
+#### Fisher's Exact Test
+
+Pearson's Chi-square test (and the Yates' Correction) is an approximation test, while Fisher Exact Test was based on calculating the exact probability of observing the data under the null hypothesis. Thus it is preferable compared to Pearson's Chi-square Test especially in small sample.
+
+\newpage
+
+```{r}
+#| echo: fenced
+
+with(asthmads, table(Gender, WorkStatus)) %>% 
+  fisher.test(.)
+```
+
+```{r}
+#| echo: fenced
+
+asthmads %>%
+  tbl_summary(include = Gender, 
+              by = WorkStatus, 
+              digits = all_categorical() ~ c(0,1)) %>% 
+  add_p(test = all_categorical() ~ "fisher.test")
+```
+
+### McNemar Test
+
+McNemar test is Pearson's Chi-square Test equivalence for paired data (e.g., pre-post data).
+
+Example: Wheezing Symptom Pre and Post Intervention
+
+1.  Create Contingency Table
+
+```{r}
+#| echo: fenced
+
+with(asthmads, table(SxWheeze_Pre, SxWheeze_Post))
+```
+
+2.  Calcualte the McNemar Test statistic
+
+```{r}
+#| echo: fenced
+
+with(asthmads, table(SxWheeze_Pre, SxWheeze_Post)) %>% 
+  mcnemar.test(correct = F)
+```
+
+::: callout-caution
+Supposedly `gtsummary::` package can create table for paired data, unfortunately I unable to replicate the code, despite converted to long format.
+:::
 
 ## Bivariate Analyses of Numerical Data
+
+Bivariate analysis involves examining the relationship or association between two variables, and bivariate analyses of numerical data is said when involving continuous dependent variables. Example of bivariate analyses of numerical data include
+
+-   Parametric Tests
+    -   Independent t-test
+    -   Paired t-test
+    -   Analysis of Variance (ANOVA)
+    -   Pearson' Correlation
+-   Non-Parametric Tests
+    -   Mann-Whitney U Test
+    -   Wilcoxon Signed Rank Test
+    -   Spearman's Correlation
+
+Many of parametric tests were based on normal distribution and analyses of the variances, while non-parametric tests were based on rank.
+
+### Independent T-test
+
+Independent t-test is a parametric test, commonly used to compare the mean of two independent sample, more specifically, compare the difference of the two means, in relation to the variation (i.e., the variance) of the data.
+
+\newpage
+
+Independent t-test is conducted with these assumptions:
+
+-   samples was taken **randomly** (i.e., the sample representative of the population)
+-   the groups and measurements were **independents**.
+-   the outcome (or dependent variable) is **numerical** data.
+-   the outcome is **normally distributed** in each group.
+-   *the variance outcome between groups is approximately equal (**homogeneity of variance**)*
+
+::: callout-note
+1.  In large sample size, T-test can be robust to violation of normal distribution assumption, based on Central Limit Theorem.
+2.  The homogeneity of variance can be ignore if we use Welch T-test as default.
+:::
+
+Example: Compare Height between Gender
+
+1.  We will use the same dataset as previous `asthmads`.
+    -   below is the code as recap
+
+```{r}
+#| echo: fenced
+#| eval: false
+
+download.file(
+  url = "https://github.com/MohdAzmiSuliman/IKU_RBook/raw/master/dataset/asthmads_clean.sav", 
+  destfile = "asthmads_clean.sav", mode = "wb")
+
+asthmads <- read_sav("asthmads_clean.sav") %>% 
+  as_factor()
+```
+
+```{r}
+#| echo: fenced
+
+asthmads
+```
+
+2.  Confirm data distribution
+    -   assumption for normal distributed in each group
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(x = Ht_m, fill = Gender)) +
+  geom_density(alpha = .5) +
+  theme_bw()
+```
+
+3.  Calculate mean and SD of height for each gender
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(Ht_m, na.rm = T),
+            sd = sd(Ht_m, na.rm = T))
+```
+
+4.  Conduct the Welch's T-test
+
+```{r}
+#| echo: fenced
+
+t.test(Ht_m ~ Gender, asthmads)
+```
+
+::: callout-important
+In R, many functions require a formula parameter, especially in statistical modelling.
+
+-   The general form of a formula is `outcome ~ predictors, data`,
+    -   outcome = dependent variable
+    -   predictors = independent variable**s**.
+-   This formula structure is used in various functions, such as linear modelling.
+-   For a t-test, which compares means across groups,
+    -   the formula formed by `outcome ~ group, data`
+    -   `group` = categorical variable = groups
+
+:::
+
+5. ***Bonus***: the *classical* Student T-test
+
+As mention previously, by default, R will use Welch's T-test, regardless of the assumption of homogeneity of variance. But if you still want to use the Student T-test, change the `var.equal = TRUE` parameter
+
+```{r}
+#| echo: fenced
+
+t.test(Ht_m ~ Gender, asthmads, var.equal = T)
+```
+
+
+::: callout-important
+Interested to know why Welch's T-test is preferable? In short:
+
+-   Student T-test result biased when assumption for normality and homogeneity of variance were not met
+-   Welch's T-test provides better control of Type 1 error rates when assumption of homoegeneity of variance was not met.
+-   Using Welch's T-test as default skip the need to test for homogeneity of variance (i.e., the Levene's test)
+-   Real data commonly not normally distributed and it is reasonable to assume that variance is unequal in many studies
+
+Source: https://doi.org/10.5334/irsp.82
+:::
+
+### Paired T-test
+
+Paired T-test is a parametric test, used to compare the mean of two dependent sample, e.g., comparing the mean for pre and post measurement.
+
+Independent t-test is conducted with these assumptions:
+
+-   The samples were **random**
+-   The measurement were **dependent** (i.e., paired, e.g., pre-post) 
+-   The outcome variable is **numerical data**
+-   The **outcome differences** is **normally distributed**
+
+Example:
+
+
 
 ## Linear Regression
 
