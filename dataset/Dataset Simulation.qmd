@@ -209,6 +209,9 @@ asthma_post
 
 ```{r}
 asthmads_clean <- asthma_ds0 %>% 
+  select(id, idR, Gender:Height, Weight_Pre, PA_HW, Weight_Post, Tx2, 
+         PEFR_Pre, PEFR_Post, SxWheeze_Pre, SxWheeze_Post, 
+         PS_Pre, PS_Post) %>% 
   mutate(Gender = as.character(Gender), 
          Gender = fct_recode(Gender, "Male" = "1", "Female" = "2"), 
          Gender = fct_relevel(Gender, "Female", "Male"),
@@ -237,7 +240,7 @@ asthmads_clean <- asthma_ds0 %>%
   relocate(Ht_m, .after = Height) %>% 
   relocate(BMI_Pre, BMI_PreCat, .after = Weight_Pre) %>% 
   relocate(BMI_Post, BMI_PostCat, .after = Weight_Post) %>% 
-  labelled::set_variable_labels(Age = "Age (year)", 
+  set_variable_labels(Age = "Age (year)", 
                                 WorkStatus = "Employment", 
                                 Height = "Height (cm)", 
                                 Weight_Pre = "Weight (kg) - before", 
@@ -250,6 +253,8 @@ asthmads_clean <- asthma_ds0 %>%
                                 SxWheeze_Post = "Symptom Wheezing - after", 
                                 PS_Pre = "Pains Score - before", 
                                 PS_Post = "Pains Score - after")
+
+asthmads_clean
 ```
 
 
