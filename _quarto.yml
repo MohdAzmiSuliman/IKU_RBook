@@ -55,9 +55,12 @@ format:
       - bindingoffset=10mm
     mainfont: Rasa
     mainfontoptions:
-      - Path=./font/
+      - Path=./font/Rasa/
       - Extension=.ttf
       - UprightFont=*-Regular
+      - ItalicFont =*-Italic
+      - BoldFont=*-Bold
+      - BoldItalicFont=*-BoldItalic
     monofont: FiraCode
     monofontoptions:
       - Path=./font/FiraCode/
