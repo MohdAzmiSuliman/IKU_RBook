@@ -385,12 +385,18 @@ In R, many functions require a formula parameter, especially in statistical mode
     -   `group` = categorical variable = groups
 :::
 
-5. ***Bonus 1***: We can create a nice looking table with gtsummary
+5.  ***Bonus 1***: We can create a nice looking table with gtsummary
 
 ```{r}
+#| echo: fenced
+#| tbl-cap: "Height Differences between Gender table, using gtsummary"
 
+asthmads %>% 
+  tbl_summary(include = Ht_m, 
+              by = Gender, 
+              statistic = all_continuous() ~ "{mean} ({sd})") %>% 
+  add_difference()
 ```
-
 
 6.  ***Bonus 2***: the *classical* Student T-test
 
@@ -410,7 +416,7 @@ Interested to know why Welch's T-test is preferable? In short:
 -   Using Welch's T-test as default skip the need to test for homogeneity of variance (i.e., the Levene's test)
 -   Real data commonly not normally distributed and it is reasonable to assume that variance is unequal in many studies
 
-Source: https://doi.org/10.5334/irsp.82
+Source: <https://doi.org/10.5334/irsp.82>
 :::
 
 ### Paired T-test
@@ -429,8 +435,10 @@ Example: Weight differences from pre to post measurement
 1.  We will use the same dataset as previous: `asthmads`
 
 2.  Check the differences data distribution
+
     -   assumption for outcome difference is normally distributed
     -   we need to calculate the differences
+
     ```{r}
     #| echo: fenced
     #| eval: false
@@ -438,7 +446,9 @@ Example: Weight differences from pre to post measurement
     asthmads %>% 
       mutate(Weight_Diff = Weight_Post - Weight_Pre)
     ```
+
     -   then plot the differences to check the distribution
+
     ```{r}
     #| echo: fenced
 
@@ -448,10 +458,11 @@ Example: Weight differences from pre to post measurement
       geom_density(alpha = .5, fill = "blue") + 
       theme_bw()
     ```
+
     -   we can see that the data is approximately normally distributed
 
-
 3.  Calculate mean and SD of weight - pre & post
+
 ```{r}
 #| echo: fenced
 
@@ -474,9 +485,11 @@ t.test(Pair(Weight_Post, Weight_Pre) ~ 1, asthmads)
 Since this is pre-post test, we need to write the post column first. In this example, the samples had reduction in body weight, thus the differences is in negative
 :::
 
-5. ***Bonus***: we can create a nice looking table with gtsummary
+5.  ***Bonus***: we can create a nice looking table with gtsummary
 
 ```{r}
+#| echo: fenced
+
 asthmads %>%
   select(id, Weight_Post, Weight_Pre) %>%
   pivot_longer(cols = starts_with("Weight"),
@@ -493,12 +506,222 @@ asthmads %>%
   
 ```
 
-```{r}
+### ANOVA - Analysis of Variance
 
+Analysis of Variance (ANOVA) is a parametric test, commonly used to compare the means of three or more independent (unrelated) groups, more specifically, in relation to the variation (i.e. the variance) of the data.
+
+::: callout-note
+There are severals test in ANOVA, which include one-way ANOVA, two-way ANOVA, N-way ANOVA, ANCOVA, Repeated Measure ANOVA, RM ANCOVA, MANOVA etc.
+
+In this example, we will focus only to one-way ANOVA
+:::
+
+One-way ANOVA is conducted with these assumptions:  
+
+-   The samples were taken **randomly**
+-   The groups and measurements were **independents**
+-   The outcome is **numerical** data
+-   The outcome in approximately **normal distribution** in each group
+-   The variances of outcome in each group have approximately equal, i.e. **homogeneity of variance**.
+
+
+::: callout-tip
+note that almost all parametric tests have similar assumptions.
+:::
+
+Example: PEFR improvement between Treatment Group
+
+1. We will use the same dataset as previous, i.e., the `asthmads`
+    -   we will need to wrangle the dataset, to calculate the PEFR improvement
+
+```{r}
+#| echo: fenced
+
+asthmads <- asthmads %>% 
+  mutate(PEFR_Diff = PEFR_Post-PEFR_Pre)
+  
+```
+
+2. Confirm data distribution
+    - assumption for normal distributed in each group
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(x = PEFR_Diff, fill = Tx2)) + 
+  geom_density(alpha = .5) + 
+  theme_bw()
+```
+
+3. Calculate mean and SD of PEFR_Diff for each treatment group
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  group_by(Tx2) %>% 
+  summarise(mean = mean(PEFR_Diff, na.rm = T), 
+            sd = sd(PEFR_Diff, na.rm = T))
+```
+
+4. Conduct the ANOVA
+
+```{r}
+#| echo: fenced
+
+oneway.test(PEFR_Diff ~ Tx2, asthmads)
+```
+
+::: callout-note
+In R, there are three related functions, but used differently, for ANOVA.
+
+1. Function `oneway.test(_)` is for Welch's ANOVA
+2. Function `aov(_)` is for ANOVA assuming equal variance
+3. Function `anova(_)` is to compare between models.
+:::
+
+5. Pair-wise post-hoc test
+    -   since the comparison by ANOVA is significant, we need to do post-hoc test to check which pair have significant difference.
+    -   since there are three pairwise comparison (Drug A vs B, Drug A vs Placebo and Drug B vs Placebo), in Bonferroni, the alpha level need to divide by 3 (i.e., 0.017)
+
+::: callout-important
+Type 1 error increase with the number of comparison being made. **Thus adjustment to the alpha level are necessary**.
+
+Common post-hoc adjustment include Bonferroni Correction, in which the original alpha level (\alpha) divided by the number of comparison.
+:::
+
+```{r}
+#| echo: fenced
+
+pairwise.t.test(asthmads$PEFR_Diff, asthmads$Tx2, 
+                p.adjust.method = "b")
+```
+
+we can see that only Drug A vs B is not significant. other pairs were significant.
+
+6. ***Bonus***: we can create nice looking table with gtsummary
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  tbl_summary(include = PEFR_Diff, 
+              by = Tx2, 
+              label = PEFR_Diff ~ "PEFR Difference (Post - Pre)", 
+              statistic = all_continuous() ~ "{mean} ({sd})", 
+              digits = all_continuous() ~ 2) %>% 
+  add_p(test = all_continuous() ~ "oneway.test")
 ```
 
 
+### Pearson's Correlation
+
+Pearson's correlation is a parametric test, commonly used to test correlation between two numerical data.
+
+The Pearson's Correlation assumptions were:  
+
+-   each observation/measurement were **independent**
+-   both variables were **numerical** data
+-   both variables should follow approximately **normal distribution**.
+-   the relationship between the two variables should be **linear**.
+-   the scatterplot of the two variables should show a roughly constant spread, the **homoscedasticity**
+
+::: callout-tip
+homogeneity and homoscedasticity is similar concept but mean differently. homogeneity means the variance between different groups were approximately equal, but homoscedasticity means the variances of residuals or best fit line were approximately constant.
+:::
+
+Example: Correlation between height and body weight
+
+1. We will use the same dataset as previous, i.e. the `asthmads`. 
+
+2. Confirm data distribution
+
+
+-   assumptions for normal distribution
+
+```{r}
+#| echo: fenced
+#| layout-ncol: 2
+
+asthmads %>% 
+  ggplot(aes(x = Ht_m)) + 
+  geom_density(fill = "lightblue", alpha = .5) + 
+  theme_bw()
+
+asthmads %>% 
+  ggplot(aes(x = Weight_Pre)) + 
+  geom_density(fill = "lightgreen", alpha = .5) + 
+  theme_bw()
+```
+
+-   assumption for linearity & homoscedasciticity
+
+```{r}
+#| echo: fenced
+
+modslope <- lm(Weight_Pre ~ Ht_m, data = asthmads) %>%
+  broom::tidy() %>%
+  filter(term == "Ht_m") %>%
+  pull(estimate)
+
+asthmads %>% 
+  ggplot(aes(x = Ht_m, y = Weight_Pre)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = F) +
+  geom_abline(slope = modslope, intercept = -70, 
+              colour = "red", linetype = 2) +
+  geom_abline(slope = modslope, intercept = -110, 
+              colour = "red", linetype = 2) + 
+  theme_bw()
+```
+
+4. Calculate the pearson correlation
+
+```{r}
+cor.test(~ Ht_m + Weight_Pre, asthmads, method = "pearson")
+```
+
+5. ***Bonus 1***: Create nice table with `apaTables::` package
+
+```{r}
+#| echo: fenced
+
+library(apaTables)
+
+asthmads %>% 
+  select(Ht_m, Weight_Pre) %>% 
+  apa.cor.table(.)
+```
+
+6. ***Bonus 2***: Correlation Plot
+
+```{r}
+#| echo: fenced
+
+library(corrplot)
+
+asthmads %>% 
+  select(-id) %>% 
+  select(where(is.numeric)) %>% 
+  cor() %>% 
+  corrplot(type = "upper", order = "hclust", 
+           tl.col = "black", tl.srt = 45)
+```
+
 
 ## Linear Regression
+
+Linear regression is a statistical method used to model the relationship between a dependent variable and one or more independent variables by fitting a linear equation to observed data.
+
+The formula for linear regression is
+
+$$y = \beta_0 + \beta_1x + \epsilon$$
+
+where
+
+-   $y$ is the dependent variable
+-   $\beta_0$ is the independent variable
+
 
 ## Logistic Regression
