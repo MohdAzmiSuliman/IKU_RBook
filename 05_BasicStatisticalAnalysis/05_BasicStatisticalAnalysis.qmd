@@ -383,10 +383,16 @@ In R, many functions require a formula parameter, especially in statistical mode
 -   For a t-test, which compares means across groups,
     -   the formula formed by `outcome ~ group, data`
     -   `group` = categorical variable = groups
-
 :::
 
-5. ***Bonus***: the *classical* Student T-test
+5. ***Bonus 1***: We can create a nice looking table with gtsummary
+
+```{r}
+
+```
+
+
+6.  ***Bonus 2***: the *classical* Student T-test
 
 As mention previously, by default, R will use Welch's T-test, regardless of the assumption of homogeneity of variance. But if you still want to use the Student T-test, change the `var.equal = TRUE` parameter
 
@@ -395,7 +401,6 @@ As mention previously, by default, R will use Welch's T-test, regardless of the 
 
 t.test(Ht_m ~ Gender, asthmads, var.equal = T)
 ```
-
 
 ::: callout-important
 Interested to know why Welch's T-test is preferable? In short:
@@ -415,11 +420,82 @@ Paired T-test is a parametric test, used to compare the mean of two dependent sa
 Independent t-test is conducted with these assumptions:
 
 -   The samples were **random**
--   The measurement were **dependent** (i.e., paired, e.g., pre-post) 
+-   The measurement were **dependent** (i.e., paired, e.g., pre-post)
 -   The outcome variable is **numerical data**
 -   The **outcome differences** is **normally distributed**
 
-Example:
+Example: Weight differences from pre to post measurement
+
+1.  We will use the same dataset as previous: `asthmads`
+
+2.  Check the differences data distribution
+    -   assumption for outcome difference is normally distributed
+    -   we need to calculate the differences
+    ```{r}
+    #| echo: fenced
+    #| eval: false
+
+    asthmads %>% 
+      mutate(Weight_Diff = Weight_Post - Weight_Pre)
+    ```
+    -   then plot the differences to check the distribution
+    ```{r}
+    #| echo: fenced
+
+    asthmads %>% 
+      mutate(Weight_Diff = Weight_Post - Weight_Pre) %>% 
+      ggplot(aes(x = Weight_Diff)) + 
+      geom_density(alpha = .5, fill = "blue") + 
+      theme_bw()
+    ```
+    -   we can see that the data is approximately normally distributed
+
+
+3.  Calculate mean and SD of weight - pre & post
+```{r}
+#| echo: fenced
+
+asthmads %>%
+  summarise(Weight_Pre_Mean = mean(Weight_Pre, na.rm = T), 
+            Weight_Pre_SD = sd(Weight_Pre, na.rm = T), 
+            Weight_Post_Mean = mean(Weight_Post, na.rm = T), 
+            Weight_Post_SD = sd(Weight_Post, na.rm = T))
+```
+
+4.  Conduct the Paired T-test
+
+```{r}
+#| echo: fenced
+
+t.test(Pair(Weight_Post, Weight_Pre) ~ 1, asthmads)
+```
+
+::: callout-caution
+Since this is pre-post test, we need to write the post column first. In this example, the samples had reduction in body weight, thus the differences is in negative
+:::
+
+5. ***Bonus***: we can create a nice looking table with gtsummary
+
+```{r}
+asthmads %>%
+  select(id, Weight_Post, Weight_Pre) %>%
+  pivot_longer(cols = starts_with("Weight"),
+               names_to = "Type",
+               values_to = "Weight",
+               names_pattern = "Weight_(.*)") %>%
+  mutate(Type = fct_relevel(Type, "Pre")) %>%
+  tbl_summary(by = Type,
+              include = Weight,
+              statistic = all_continuous() ~ "{mean} ({sd})",
+              digits = all_continuous() ~ 2) %>% 
+  add_difference(test = all_continuous() ~ "paired.t.test", 
+                 group = id)
+  
+```
+
+```{r}
+
+```
 
 
 
