@@ -1014,3 +1014,130 @@ lm(formula = BMI_Diff ~ Gender + WorkStatus + PA_HW,
 
 
 ## Logistic Regression
+
+Similar to linear regression, logistic regression models the relationship between a dependent variable and one or more independent variables. However, while linear regression predicts continuous outcomes, binary logistic regression is used when the outcome is binary in nature, with two possible outcomes (0/1, yes/no, true/false). Logistic regression estimates the **probabilities** of the binary outcome
+
+the formula is
+
+$$\log\left(\frac{P}{1-P}\right) = \beta_0 + \beta_1X$$
+
+-   $P$ is the probability of outcome
+-   $\frac{P}{1-P}$ is the odd of event occuring
+-   $\log\left(\frac{P}{1-P}\right)$ - the log odds or logit
+-   $X$ is the predictor
+-   $\beta_0$ is the y-intercept
+-   $\beta_1X$ is the slope of the line, representing the change of probability in y for one-unit change in  $X$
+
+The assumptions for logistic regression are:  
+
+-   each observation were **indepedent**.
+-   the outcome variable is **binary categorical** data
+-   The log odds of the outcome should have a **linear** relationship with the independent variables
+-   abscence (or minimal) **multicollinearity**
+-   **large sample size**. general rule of thumn, at least 10 cases with the least frequent outcome for each independent variable in the model
+-   no extreme **outlier**
+-   model should adequately fit the model, i.e., test for **goodness-of-fit**
+
+:::callout-tip
+note the similarities and differences between linear regression and logistic regression. 
+:::
+
+
+Example: Finding factors associated with BMI changes category
+
+### Simple Logistic Regression
+
+1. We will use the same dataset as previous, i.e., the `asthmads`
+    -   we need to do some data wrangling to categorised the BMI changes.
+    -   assumed, if the BMI changes (reduced) by 2.5 kg/m^2^, the changes is effective
+
+```{r}
+#| echo: fenced
+
+asthmads <- asthmads %>% 
+  mutate(BMI_DiffCat = cut(BMI_Diff, 
+                           breaks = c(0, -2, -6), 
+                           labels = c("Effective", "Not Effective")), 
+         BMI_DiffCat = fct_relevel(BMI_DiffCat, "Not Effective"))
+```
+
+2. Conduct the simple logistic regression
+
+```{r}
+#| echo: fenced
+
+slogm <- glm(BMI_DiffCat ~ PA_HW, family = binomial, asthmads)
+
+summary(slogm)
+```
+
+3. Exponentiate the estimate and confident interval
+
+```{r}
+#| echo: fenced
+
+exp(coef(slogm))
+
+exp(confint(slogm))
+```
+
+:::callout-note
+exponentiating a coefficient gives you the odds ratio associated with a one-unit increase in the corresponding predictor variable, assuming other variables are held constant
+:::
+
+4. Test assumption
+    -   similar to linear regression, simplest way for assumption testing is use `plot(_)` function
+
+```{r}
+#| layout-ncol: 2
+#| echo: fenced
+
+plot(slogm)
+```
+
+5. Check model fitness
+
+-   in R, the model fitness measured with AIC, which is from the `summary(_)` function
+
+```{r}
+#| echo: fenced
+
+summary(slogm)
+```
+
+-   we can also conduct hosmer-lemeshow test.
+-   the outcome however need to change to binary numeric 0/1 first.
+
+```{r}
+#| echo: fenced
+
+asthmads <- asthmads %>% 
+  mutate(BMI_DiffCatN = case_when(BMI_DiffCat == "Not Effective" ~ 0, 
+                                  BMI_DiffCat == "Effective" ~ 1))
+
+library(ResourceSelection)
+
+hoslem.test(asthmads$BMI_DiffCatN, 
+            fitted(slogm), g = 5)
+```
+
+6. Check model performance
+
+-   model performance with accuracy, sensitivity and specificity
+    -   need to calculate the predicted outcome, using `broom::` package
+
+```{r}
+#| echo: fenced
+
+library(caret)
+library(broom)
+
+augment(slogm, type.predict = "response") %>% 
+  mutate(predcat = cut(.fitted, 
+                       breaks = c(0, .5, 1), 
+                       labels = c("Not Effective", "Effective")), 
+         predcat = fct_relevel(predcat, "Not Effective")) %>% 
+  with(., table(BMI_DiffCat, predcat)) %>% 
+  confusionMatrix(., positive = "Effective")
+```
+
