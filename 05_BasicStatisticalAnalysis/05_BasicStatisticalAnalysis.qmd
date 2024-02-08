@@ -516,7 +516,7 @@ There are severals test in ANOVA, which include one-way ANOVA, two-way ANOVA, N-
 In this example, we will focus only to one-way ANOVA
 :::
 
-One-way ANOVA is conducted with these assumptions:  
+One-way ANOVA is conducted with these assumptions:
 
 -   The samples were taken **randomly**
 -   The groups and measurements were **independents**
@@ -524,14 +524,13 @@ One-way ANOVA is conducted with these assumptions:
 -   The outcome in approximately **normal distribution** in each group
 -   The variances of outcome in each group have approximately equal, i.e. **homogeneity of variance**.
 
-
 ::: callout-tip
 note that almost all parametric tests have similar assumptions.
 :::
 
 Example: PEFR improvement between Treatment Group
 
-1. We will use the same dataset as previous, i.e., the `asthmads`
+1.  We will use the same dataset as previous, i.e., the `asthmads`
     -   we will need to wrangle the dataset, to calculate the PEFR improvement
 
 ```{r}
@@ -542,8 +541,8 @@ asthmads <- asthmads %>%
   
 ```
 
-2. Confirm data distribution
-    - assumption for normal distributed in each group
+2.  Confirm data distribution
+    -   assumption for normal distributed in each group
 
 ```{r}
 #| echo: fenced
@@ -554,7 +553,7 @@ asthmads %>%
   theme_bw()
 ```
 
-3. Calculate mean and SD of PEFR_Diff for each treatment group
+3.  Calculate mean and SD of PEFR_Diff for each treatment group
 
 ```{r}
 #| echo: fenced
@@ -565,7 +564,7 @@ asthmads %>%
             sd = sd(PEFR_Diff, na.rm = T))
 ```
 
-4. Conduct the ANOVA
+4.  Conduct the ANOVA
 
 ```{r}
 #| echo: fenced
@@ -576,12 +575,12 @@ oneway.test(PEFR_Diff ~ Tx2, asthmads)
 ::: callout-note
 In R, there are three related functions, but used differently, for ANOVA.
 
-1. Function `oneway.test(_)` is for Welch's ANOVA
-2. Function `aov(_)` is for ANOVA assuming equal variance
-3. Function `anova(_)` is to compare between models.
+1.  Function `oneway.test(_)` is for Welch's ANOVA
+2.  Function `aov(_)` is for ANOVA assuming equal variance
+3.  Function `anova(_)` is to compare between models.
 :::
 
-5. Pair-wise post-hoc test
+5.  Pair-wise post-hoc test
     -   since the comparison by ANOVA is significant, we need to do post-hoc test to check which pair have significant difference.
     -   since there are three pairwise comparison (Drug A vs B, Drug A vs Placebo and Drug B vs Placebo), in Bonferroni, the alpha level need to divide by 3 (i.e., 0.017)
 
@@ -600,7 +599,7 @@ pairwise.t.test(asthmads$PEFR_Diff, asthmads$Tx2,
 
 we can see that only Drug A vs B is not significant. other pairs were significant.
 
-6. ***Bonus***: we can create nice looking table with gtsummary
+6.  ***Bonus***: we can create nice looking table with gtsummary
 
 ```{r}
 #| echo: fenced
@@ -614,12 +613,11 @@ asthmads %>%
   add_p(test = all_continuous() ~ "oneway.test")
 ```
 
-
 ### Pearson's Correlation
 
 Pearson's correlation is a parametric test, commonly used to test correlation between two numerical data.
 
-The Pearson's Correlation assumptions were:  
+The Pearson's Correlation assumptions were:
 
 -   each observation/measurement were **independent**
 -   both variables were **numerical** data
@@ -633,10 +631,9 @@ homogeneity and homoscedasticity is similar concept but mean differently. homoge
 
 Example: Correlation between height and body weight
 
-1. We will use the same dataset as previous, i.e. the `asthmads`. 
+1.  We will use the same dataset as previous, i.e. the `asthmads`.
 
-2. Confirm data distribution
-
+2.  Confirm data distribution
 
 -   assumptions for normal distribution
 
@@ -667,7 +664,7 @@ modslope <- lm(Weight_Pre ~ Ht_m, data = asthmads) %>%
 
 asthmads %>% 
   ggplot(aes(x = Ht_m, y = Weight_Pre)) + 
-  geom_point() + 
+  geom_point(position = position_jitter()) + 
   geom_smooth(method = "lm", se = F) +
   geom_abline(slope = modslope, intercept = -70, 
               colour = "red", linetype = 2) +
@@ -676,13 +673,13 @@ asthmads %>%
   theme_bw()
 ```
 
-4. Calculate the pearson correlation
+4.  Calculate the pearson correlation
 
 ```{r}
 cor.test(~ Ht_m + Weight_Pre, asthmads, method = "pearson")
 ```
 
-5. ***Bonus 1***: Create nice table with `apaTables::` package
+5.  ***Bonus 1***: Create nice table with `apaTables::` package
 
 ```{r}
 #| echo: fenced
@@ -694,7 +691,7 @@ asthmads %>%
   apa.cor.table(.)
 ```
 
-6. ***Bonus 2***: Correlation Plot
+6.  ***Bonus 2***: Correlation Plot
 
 ```{r}
 #| echo: fenced
@@ -709,7 +706,6 @@ asthmads %>%
            tl.col = "black", tl.srt = 45)
 ```
 
-
 ## Linear Regression
 
 Linear regression is a statistical method used to model the relationship between a dependent variable and one or more independent variables by fitting a linear equation to observed data.
@@ -720,8 +716,301 @@ $$y = \beta_0 + \beta_1x + \epsilon$$
 
 where
 
--   $y$ is the dependent variable
--   $\beta_0$ is the independent variable
+-   $y$ is the dependent variable (outcome)
+-   $x$ is the independent variable (predictor)
+-   $\beta_0$ is the y-intercept
+-   $\beta_1$ is the slope of the line, representing the change in y for one-unit change in x
+-   $\epsilon$ is the error term
+
+For linear regression to provide reliable estimates, several key assumptions must be met
+
+-   each observation/measurement were **independent**
+-   the outcome variable is **numerical** data
+-   the residuals follow approximately **normal distribution**.
+-   the relationship between the predictor and the outcome should be **linear**.
+-   the residuals have constants variance at every level of the predictor, i.e., the **homoscedasticity**
+-   in multiple linear regression, there will be no or little **multicollinearity**, which independent variables are not too highly correlated with each other
+
+::: callout-tip
+note the similarity between pearson correlation and linear regression
+:::
+
+Example: Finding factors associated with BMI changes
+
+#### Simple Linear Regression
+
+1.  We will use the same dataset as previous, i.e. the `asthmads`
+    -   we need to do some data wrangling to calculate the BMI changes
+
+```{r}
+#| echo: fenced
+
+asthmads <- asthmads %>% 
+  mutate(BMI_Diff = BMI_Post-BMI_Pre)
+```
+
+2.  Conduct the simple linear regression
+    -   in this example, the simple linear regression model is saved in R object, for used later
+
+```{r}
+#| echo: fenced
+
+slinm <- lm(BMI_Diff ~ PA_HW, asthmads)
+
+summary(slinm)
+```
+
+3.  Test assumptions
+
+-   the simplest way for assumptions testing, is to use `plot(_)` function
+
+```{r}
+#| layout-ncol: 2
+#| echo: fenced
+
+plot(slinm)
+```
+
+-   otherwise, we call also use `augment(_)` function from `broom::` package to extract the residuals and check the assumptions
+
+```{r}
+#| echo: fenced
+
+library(broom)
+
+augment(slinm)
+```
+
+-   using the dataset from augment, to plot the residual to check for normality
+
+```{r}
+#| echo: fenced
+
+augment(slinm) %>% 
+  ggplot(aes(.fitted)) +
+  geom_density(fill = "lightblue", alpha = .5) +
+  theme_bw()
+```
+
+-   plot residual values vs predicted values (aka fitted values) for linearity and homoscedasticity
+    -   linearity: abscence of systematic patterns like curves
+    -   homoscedasticity: residuals randomly scttered around the horizontal line with no funnel-shapped patern
+
+```{r}
+#| echo: fenced
+
+augment(slinm) %>% 
+  ggplot(aes(x = .fitted, y = .resid)) + 
+  geom_point(position = position_jitter()) + 
+  geom_hline(yintercept = 0, linetype = 2, colour = "blue") +
+  geom_hline(yintercept = .75, linetype = 3, colour = "red") +
+  geom_hline(yintercept = -.75, linetype = 3, colour = "red") +
+  theme_bw()
+```
+
+4.  Check model fitness
+
+-   one of parameter to check our model fitness is by looking at the coefficient of determination $r^2$ from the model summary
+
+```{r}
+#| echo: fenced
+
+summary(slinm)
+```
+
+-   we can also plot our observed vs predicted value to visualize the model fitness
+    -   in this plot, the point should be close at the diagonal, i.e. observed = predicted
+
+```{r}
+#| echo: fenced
+
+slinm %>% 
+  augment() %>% 
+  ggplot(aes(x = .fitted, y = BMI_Diff)) + 
+  scale_x_continuous(limits = c(-6, 0)) +
+  scale_y_continuous(limits = c(-6, 0)) +
+  geom_point(position = position_jitter()) +
+  geom_abline(intercept = 0, slope = 1, linetype = 2) + 
+  theme_bw() +
+  theme(aspect.ratio = 1)
+```
+
+5.  ***Bonus***: nice table with gtsummary
+
+-   `tbl_uvregression(_)` functions from gtsummary not only can create a nice table
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  tbl_uvregression(method = lm,
+                   y = BMI_Diff,
+                   include = PA_HW)
+```
+
+-   but also can simplified our simple linear regression involving several predictors
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  select(BMI_Diff, Gender, Age, WorkStatus, Height, PA_HW) %>% 
+  tbl_uvregression(method = lm,
+                   y = BMI_Diff, 
+                   pvalue_fun = partial(style_pvalue, 
+                                        digits = 3)) %>% 
+  bold_p()
+```
+
+### Multiple Linear Regression
+
+Real-world relationships between variables rarely occur in isolation; they are often influenced by third variables. These third variables can be categorized as:
+
+-   Confounders
+-   Mediators
+-   Moderators
+
+Controlling for these third variables is crucial for accurately understanding the relationships among variables. While the optimal approach is to control for these variables at the study design level (e.g., through randomization, stratification, and setting proper inclusion and exclusion criteria), the presence of third variables can be inevitable and may significantly impact the observed relationships.
+
+When third variables cannot be controlled through design alone, statistical methods can be employed to adjust for their influence, including (not limited to) Stratification, Multivariable Analysis or Multivariate Analysis
+
+Example: Find factors associated with BMI changes
+
+1. Conduct multiple linear regression
+    -   and check for model fitness ($R^2$)
+
+```{r}
+#| echo: fenced
+
+mlinm <- lm(BMI_Diff ~ Gender + Age + WorkStatus + PA_HW + BMI_PreCat, 
+            asthmads)
+
+summary(mlinm)
+```
+
+2. Test for assumptions
+
+
+```{r}
+#| layout-ncol: 2
+#| echo: fenced
+
+plot(mlinm)
+```
+
+3. ***Bonus 1***: Model Comparison
+
+we can compare multiple model with `anova(_)` function
+
+-   for example we have null model
+
+```{r}
+#| echo: fenced
+
+slinnulm <- lm(BMI_Diff ~ 1, asthmads)
+```
+
+-   we want to compare our simple linear regression model with the null model
+
+```{r}
+#| echo: fenced
+
+anova(slinnulm, slinm)
+```
+
+-   we can also compare multiple models
+
+```{r}
+#| echo: fenced
+
+anova(slinnulm, slinm, mlinm)
+```
+
+-   we can see that our multiple linear regression model is not significantly different with simple linear regression model. thus we can choose the simpler model i.e., the simple linear regression model.
+
+4. ***Bonus 2***: Variable Selection
+
+:::callout-important
+variable selection should start with plausible relationship i.e., back up with prior knowledge. this should start even at study design, in which unlikely relationship should not be included as variable collected in the study. this is to avoid spurious significant association
+
+further read: https://doi.org/10.1002%2Fbimj.201700067
+:::
+
+While variable selection should be made purposely, i.e., the PI specifically select variable to be included in final model, variable selection by statistically software is still available to conduct.
+
+-   create null model
+
+```{r}
+#| echo: fenced
+
+mlinnulm <- lm(BMI_Diff ~ 1, asthmads)
+```
+
+-   create full model
+
+```{r}
+#| echo: fenced
+
+mlinfulm <- lm(BMI_Diff ~ Gender + Age + WorkStatus + PA_HW + BMI_PreCat, 
+               asthmads)
+```
+
+-   conduct forward selection
+
+```{r}
+#| echo: fenced
+
+step(mlinfulm, 
+     scope = list(lower = mlinnulm, upper = mlinfulm), 
+     direction = "forward", 
+     trace = 0)
+```
+
+-   conduct backward selection
+
+```{r}
+#| echo: fenced
+
+step(mlinfulm, 
+     scope = list(lower = mlinnulm, upper = mlinfulm), 
+     direction = "backward", 
+     trace = 0)
+```
+
+-   conduct both selection
+
+```{r}
+#| echo: fenced
+
+step(mlinfulm, 
+     scope = list(lower = mlinnulm, upper = mlinfulm), 
+     direction = "both", 
+     trace = 0)
+```
+
+5. ***Bonus 3***: Nice table with gtsummary
+    -   final model table based on variable selection, direction "both"
+
+```{r}
+#| echo: fenced
+
+lm(formula = BMI_Diff ~ Gender + WorkStatus + PA_HW, 
+   data = asthmads) %>% 
+  tbl_regression() %>% 
+  bold_p()
+```
+
+6. ***Bonus 4***: Another package that also create nice table, sjPlot
+
+```{r}
+#| echo: fenced
+
+library(sjPlot)
+
+lm(formula = BMI_Diff ~ Gender + WorkStatus + PA_HW, 
+   data = asthmads) %>% 
+  tab_model()
+```
 
 
 ## Logistic Regression
