@@ -1,7 +1,263 @@
-# Data Wrangling
+# Data Vizualization
 
-In summary, this book has no content whatsoever.
+One of the strengths of R is its capability for data visualization. While base R itself offers robust visualization and graphing capabilities, the open-source nature of R encourages the development and use of various packages to extend its visualization potential. Among these, the `ggplot2::` package stands out for its powerful and versatile graphing functions, making it a popular choice among data scientists and statisticians.
+
+Although R is a programming language with a syntax that can be complex for beginners, the `esquisse::` package provides a user-friendly interface to facilitate graph plotting. By simplifying the process of creating visualizations, `esquisse::` allows users to generate plots more intuitively, making data visualization accessible to those less familiar with R's syntax.
+
+In this chapter, we will demonstrate examples of several types of graphs, showcasing the breadth of R's visualization capabilities. Through practical examples, readers will learn how to leverage packages like `ggplot2::` and tools like `esquisse::` to transform data into compelling visual narratives. Whether you're visualizing trends, distributions, relationships, or comparisons, R provides the tools necessary to produce informative and aesthetically pleasing graphics.
+
+Some of the commong graph here are
+
+-   Single Variable
+    -   histogram
+    -   boxplot
+    -   bar chart
+    -   scatter plot
+    -   line chart
+    
+
+## Practical - Setup Project
+
+1.  Setup your project
+    -   Open your RStudio
+    -   Create New Project
+2.  Create Quarto document
+    -   update the YAML metadata to make the document self-contained
 
 ```{r}
-1 + 1
+#| echo: true
+#| eval: false
+
+---
+title: "Sesi 2 - Data Vizualization"
+format:
+  html:
+    embed-resources: true
+---
+
 ```
+
+3.  Download the dataset
+    -   we will use `asthmads_clean.sav` data set
+
+
+```{r}
+#| echo: fenced
+#| eval: false
+
+download.file(
+  url = "https://github.com/MohdAzmiSuliman/IKU_RBook/raw/master/dataset/asthmads_clean.sav", 
+  destfile = "asthmads_clean.sav", mode = "wb")
+```
+
+
+```{r}
+#| echo: true
+
+library(tidyverse)
+library(haven)
+
+asthmads <- read_sav("asthmads_clean.sav") %>% 
+  as_factor()
+asthmads
+```
+
+
+## `esquisse::` RStudio Addin
+
+## Histogram
+
+Histogram suitable to show distribution of single numerical variable, such as the body weight distribution
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(Weight_Pre)) + 
+  geom_histogram()
+```
+
+
+we can customise it to make it prettier
+
+```{r}
+asthmads %>% 
+  ggplot(aes(Weight_Pre)) + 
+  geom_histogram(binwidth = 5, alpha = 0.5, 
+                 fill = "white", colour = "black") +
+  theme_bw()
+```
+
+
+we can also stratified the graph, for example, by gender
+
+```{r}
+asthmads %>% 
+  ggplot(aes(Weight_Pre)) + 
+  geom_histogram(aes(fill = Gender), 
+                 position = position_dodge(), 
+                 binwidth = 5, alpha = 0.5, 
+                 colour = "black") +
+  theme_bw()
+```
+
+
+## Boxplot
+
+Boxplot also a common graph use to visualize single numerical variable
+
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(Weight_Pre)) + 
+  geom_boxplot()
+```
+
+
+we can customise it to make it prettier
+
+```{r}
+asthmads %>% 
+  ggplot(aes(Weight_Pre)) + 
+  geom_boxplot() + 
+  theme_bw()
+```
+
+
+we can also stratified the graph, for example, by gender
+
+```{r}
+asthmads %>% 
+  ggplot(aes(Weight_Pre)) + 
+  geom_boxplot(aes(fill = Gender)) + 
+  theme_bw()
+```
+
+
+## Bar Chart
+
+Similar to histogram, bar chart suitable to show distribution of single categorical variable, such as BMI categories. the bar in histogram is continuous, but in bar chart, has gap.
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(BMI_PreCat)) + 
+  geom_bar()
+```
+
+we can customise it to make it prettier
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(BMI_PreCat)) + 
+  geom_bar(aes(fill = BMI_PreCat)) + 
+  theme_bw()
+```
+
+there are various way if we want to stratified this.
+
+-   we can stratified by facet_wrap function
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(BMI_PreCat)) + 
+  geom_bar(aes(fill = BMI_PreCat)) + 
+  facet_wrap(~ Gender) + 
+  theme_bw()
+```
+
+
+-   we can stratified by position dodge
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(BMI_PreCat)) + 
+  geom_bar(aes(fill = Gender), position = position_dodge()) + 
+  theme_bw()
+```
+
+
+
+## Scatter Plot
+
+Scatter plot suitable to visualize two numerical variables together, for example, we want to see the relationship between body weight and height.
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(x = Ht_m, y = Weight_Pre)) + 
+  geom_point()
+```
+
+we can customise it so make it pretty
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(x = Ht_m, y = Weight_Pre)) + 
+  geom_point() +
+  theme_bw()
+```
+
+we can also stratified by gender
+
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(x = Ht_m, y = Weight_Pre)) + 
+  geom_point(aes(colour = Gender)) +
+  theme_bw()
+```
+
+
+and even add best fit line (pearson correlation)
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(x = Ht_m, y = Weight_Pre)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  theme_bw()
+```
+
+
+## Line Chart
+
+```{r}
+tibble(year = seq(2008, 2020, 4), 
+       male = sample(10:25, 4, replace = T), 
+       female = sample(10:25, 4, replace = T), 
+       total = male+female) %>% 
+  ggplot(aes(x = year, y = total)) +
+  geom_point() + 
+  geom_line(group = 1)
+```
+
+
+
+## Spaghetti Plot
+
+```{r}
+asthmads %>% 
+  select(id, BMI_Pre, BMI_Post) %>% 
+  pivot_longer(cols = c(BMI_Pre, BMI_Post)) %>% 
+  ggplot(aes(x = name, y = value)) + 
+  geom_point() +
+  geom_line(aes(group = id))
+```
+
