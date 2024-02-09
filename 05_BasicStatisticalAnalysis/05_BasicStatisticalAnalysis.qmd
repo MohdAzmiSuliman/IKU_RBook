@@ -1136,8 +1136,58 @@ augment(slogm, type.predict = "response") %>%
   mutate(predcat = cut(.fitted, 
                        breaks = c(0, .5, 1), 
                        labels = c("Not Effective", "Effective")), 
-         predcat = fct_relevel(predcat, "Not Effective")) %>% 
+         predcat = fct_relevel(predcat, "Not Effective"))  %>% 
   with(., table(BMI_DiffCat, predcat)) %>% 
   confusionMatrix(., positive = "Effective")
+```
+
+- model performance with AUROC
+
+```{r}
+#| echo: fenced
+
+library(pROC)
+
+augment(slogm, type.predict = "response") %>% 
+  mutate(predcat = cut(.fitted, 
+                       breaks = c(0, .5, 1), 
+                       labels = c("Not Effective", "Effective")), 
+         predcat = fct_relevel(predcat, "Not Effective")) %>% 
+  roc(BMI_DiffCat, .fitted, 
+      levels = c("Not Effective", "Effective"), 
+      percent = T, 
+      ci = T, 
+      plot = T, 
+      smooth = F)
+```
+
+- of course if you want to customise the plot with ggplot, you can extract the value
+
+```{r}
+augment(slogm, type.predict = "response") %>% 
+  mutate(predcat = cut(.fitted, 
+                       breaks = c(0, .5, 1), 
+                       labels = c("Not Effective", "Effective")), 
+         predcat = fct_relevel(predcat, "Not Effective")) %>% 
+  roc(BMI_DiffCat, .fitted, 
+      levels = c("Not Effective", "Effective")) %>% 
+  coords()
+  
+augment(slogm, type.predict = "response") %>% 
+  mutate(predcat = cut(.fitted, 
+                       breaks = c(0, .5, 1), 
+                       labels = c("Not Effective", "Effective")), 
+         predcat = fct_relevel(predcat, "Not Effective")) %>% 
+  roc(BMI_DiffCat, .fitted, 
+      levels = c("Not Effective", "Effective")) %>% 
+  coords() %>% 
+  arrange(sensitivity, specificity) %>% 
+  ggplot(aes(x = 1-specificity, y = sensitivity)) + 
+  geom_line(group = 1) +
+  geom_abline(intercept = 0, slope = 1, linetype = 2) + 
+  theme_bw() +
+  theme(aspect.ratio = 1)
+
+
 ```
 
