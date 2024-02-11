@@ -1,7 +1,144 @@
 # Data Wrangling
 
-In summary, this book has no content whatsoever.
+## What is Data Wrangling?
+
+-   Common data analysis look like this
+
+![source: r4ds.hadley.nz](R4DS_wrangling.png)
+
+-   real world data commonly messy!
+-   80% of time taken spend on data cleaning
+-   improving data quality → undefined undefin undefined improving the accuracy & ef
+-   data wrangling involving **tidying** and **transforming** data, from raw form to analysis-ready data.
+-   common data wrangling action
+    -   label data
+    -   recategorise categorical variable - usually collapsing groups
+    -   binning continuous variable
+
+## Practical
+
+### Setup Project
+
+1.  Setup your project
+    -   Open RStudio
+    -   Create New Project
+2.  Create Quarto document
+    -   update the YAML metadata to make the document self-contained
 
 ```{r}
-1 + 1
+#| echo: true
+#| eval: false
+
+---
+title: "Sesi 1 - Data Wrangling"
+format:
+  html: 
+    embed-resources: true
+---
+```
+
+### Data Import
+
+-   Commonly data were collected & stored elsewhere, with various format
+-   Data sources includes:
+    -   Surveys and questionnaires
+    -   epidemiological studies
+    -   governments and health agencies record
+    -   electronic health records
+    -   Clinical trials
+-   Common File Formats
+    -   CSV (comma-separated values), text file
+    -   Excel file
+    -   SPSS, SAS and STATA files
+    -   JSON (javascript object notion)
+    -   Databases, SQL
+-   in R, various package can be use to import data
+    -   `base`: import csv file using `read.csv(_)` function
+    -   `readxl`: import excel file using `read_excel(_)` function
+    -   `haven`:
+        -   import SAS file using `read_sas(_)` function
+        -   import SPSS file using `read_sav(_)` function
+        -   import STATA file uisng `read_dta(_)` function
+    -   `rio`: simplify importing file using `import(_)` function
+-   RStudio User: simplest method is by clicking at the file
+
+1.  ensure you have the dataset `asthma_ds.sav` file in your working directory
+    -   or you can download from file repository
+
+```{r}
+#| echo: fenced
+#| eval: false
+
+download.file(url = "https://github.com/MohdAzmiSuliman/IKU_RBook/raw/master/dataset/asthma_ds.sav", 
+              destfile = "asthma_ds.sav", mode = "wb")
+```
+
+2.  import the spss file
+    -   using `read_sav(_)` and `as_factor(_)` function from `haven::` package
+
+```{r}
+#| echo: fenced
+library(tidyverse)
+library(haven)
+
+asthma_ds <- read_sav("asthma_ds.sav") %>% 
+  as_factor()
+
+asthma_ds
+```
+
+### Data Wrangling
+
+-   All data must have context, and understanding the context of the data is important in data wrangling.
+-   in this practical the dataset `asthma_ds` is a simulated (i.e. fake) data, which can be used for 2 research
+    -   physical activity effect on weight loss
+        -   variable: physical activity, body weight (pre & post)
+    -   bronchodilator effect on asthmatic patient
+        -   variable: bronchodilator (placebo, drug A & drug B), PEFR (pre & post), wheezing symptom (pre & post), pain score (pre & post)
+
+#### Select Variable
+
+-   Data can be very large - lots of variable (high dimension), and lots of observation (high volume)
+-   occasionally we may only want to select specific variable
+-   in this practical, we want to select the variable related to physical activity part
+    -   idR, Gender, Age, Height, Weight_Pre, PA_HW, Weight_Post
+-   and save to a R object
+
+```{r}
+#| echo: fenced
+
+asthma_pa <- asthma_ds %>% 
+  select(idR, Gender, Age, Height, Weight_Pre, PA_HW, 
+                      Weight_Post)
+
+asthma_pa
+```
+
+#### Sorting by Variable
+
+-   We can also sort our data, using `arrange(_)` function
+    -   `arrange(_)` function sort by ascending value
+    -   to sort by descending value, add `desc` parameter
+
+```{r}
+#| echo: fenced
+
+asthma_pa %>% 
+  arrange(., Height)
+
+asthma_pa %>% 
+  arrange(., desc(Height))
+```
+
+#### Filter/Subset Data
+
+-   We may also wanted to subset our data, analysing data that fulfil our criteria
+-   for example, we want to analyse among the male only.
+-   filtering data using function `filter`
+
+```{r}
+#| echo: fenced
+
+asthma_pa %>% 
+  filter(., Age >= 15 & Age <= 64)
 ```
