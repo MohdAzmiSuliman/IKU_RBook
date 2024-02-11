@@ -65,7 +65,14 @@ asthmads
 
 ## `esquisse::` RStudio Addin
 
-## Histogram
+
+
+
+## Plot Examples
+
+Example of plot/graph will be shown first, then when we have rough idea of how ggplot is plotted.
+
+### Histogram
 
 Histogram suitable to show distribution of single numerical variable, such as the body weight distribution
 
@@ -102,7 +109,7 @@ asthmads %>%
 ```
 
 
-## Boxplot
+### Boxplot
 
 Boxplot also a common graph use to visualize single numerical variable
 
@@ -136,7 +143,7 @@ asthmads %>%
 ```
 
 
-## Bar Chart
+### Bar Chart
 
 Similar to histogram, bar chart suitable to show distribution of single categorical variable, such as BMI categories. the bar in histogram is continuous, but in bar chart, has gap.
 
@@ -187,7 +194,7 @@ asthmads %>%
 
 
 
-## Scatter Plot
+### Scatter Plot
 
 Scatter plot suitable to visualize two numerical variables together, for example, we want to see the relationship between body weight and height.
 
@@ -236,7 +243,7 @@ asthmads %>%
 ```
 
 
-## Line Chart
+### Line Chart
 
 ```{r}
 tibble(year = seq(2008, 2020, 4), 
@@ -250,7 +257,7 @@ tibble(year = seq(2008, 2020, 4),
 
 
 
-## Spaghetti Plot
+### Spaghetti Plot
 
 ```{r}
 asthmads %>% 
@@ -261,3 +268,80 @@ asthmads %>%
   geom_line(aes(group = id))
 ```
 
+## ggplot2
+
+ggplot2 implements the grammar of graphics, a coherent system for describing and building graph. We will use scatterplot as example, in understanding ggplot.
+
+Source: https://r4ds.hadley.nz/data-visualize
+
+Example: What is the relationship between body weight and height?
+
+The Ultimate Goal
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(aes(x = Ht_m, y = Weight_Pre)) + 
+  geom_point(aes(colour = Gender)) + 
+  scale_x_continuous(breaks = seq(1, 2, .1), 
+                     labels = scales::label_number(accuracy = 0.01),
+                     name = "Height (m)") + 
+  scale_y_continuous(breaks = seq(0, 150, 20), 
+                     name = "Weight - Pre (kg)") +
+  theme_bw()
+```
+
+1. ggplot function i.e, creating the "canvas"
+
+```{r}
+#| echo: fenced
+
+ggplot(data = asthmads)
+```
+
+:::callout-tip
+this is the same as
+
+```{r}
+#| echo: fenced
+#| eval: false
+
+asthmads %>% 
+  ggplot(data = .)
+
+asthmads %>% 
+  ggplot()
+
+asthmads %>% 
+  ggplot(.)
+```
+
+i prefer to use this, as in later step, the variables in dataset asthmads can be easily call.
+:::
+
+2. map the visual properties
+    -   specifying the x axis and y axis in the respective arguement
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(data = . ,
+         mapping = aes(x = Ht_m, y = Weight_Pre))
+```
+
+3. Define the geometrical object to represent the data
+
+```{r}
+#| echo: fenced
+
+asthmads %>% 
+  ggplot(data = . ,
+         mapping = aes(x = Ht_m, y = Weight_Pre)) + 
+  geom_point()
+```
+
+:::callout-important
+do note that in ggplot, the plotting functions (e.g., ggplot, geom_point etc) were combined with `+` rather than `%>%` pipe.
+:::
