@@ -26,7 +26,7 @@
     -   update the YAML metadata to make the document self-contained
 
 ```{r}
-#| echo: true
+#| echo: fenced
 #| eval: false
 
 ---
@@ -69,8 +69,9 @@ format:
 #| echo: fenced
 #| eval: false
 
-download.file(url = "https://github.com/MohdAzmiSuliman/IKU_RBook/raw/master/dataset/asthma_ds.sav", 
-              destfile = "asthma_ds.sav", mode = "wb")
+download.file(
+  url = "https://github.com/MohdAzmiSuliman/IKU_RBook/raw/master/dataset/asthma_ds.sav", 
+  destfile = "asthma_ds.sav", mode = "wb")
 ```
 
 2.  import the spss file
@@ -114,6 +115,17 @@ asthma_pa <- asthma_ds %>%
 asthma_pa
 ```
 
+-   we can also select several consecutive column using `:` symbol
+
+```{r}
+#| echo: fenced
+
+asthma_tx <- asthma_ds %>% 
+  select(idR, Tx2:PS_Post, Gender, Age, Height, Weight_Pre)
+
+asthma_tx
+```
+
 #### Sorting by Variable
 
 -   We can also sort our data, using `arrange(_)` function
@@ -125,6 +137,10 @@ asthma_pa
 
 asthma_pa %>% 
   arrange(., Height)
+```
+
+```{r}
+#| echo: fenced
 
 asthma_pa %>% 
   arrange(., desc(Height))
@@ -141,4 +157,309 @@ asthma_pa %>%
 
 asthma_pa %>% 
   filter(., Age >= 15 & Age <= 64)
+```
+
+#### Recode Data
+
+-   function `fct_recode` is used to recode variable
+    -   for example, we want to recode Drug A and Drug B into Treat group and Placebo into Control group
+
+```{r}
+#| echo: fenced
+
+asthma_tx %>% 
+  select(idR, Tx2) %>% 
+  mutate(Tx1 = fct_recode(Tx2, 
+                          "Treat" = "Drug A", 
+                          "Treat" = "Drug B", 
+                          "Control" = "Placebo"))
+```
+
+-   function `fct_recode(_)` also used to recode numerical to categorical variable
+    -   `fct_recode(_)` can only recode factor or string. so we have to convert numerical variable to string using `as.character(_)` function
+    -   for example, we want to recode pain score 6 to high, 5 to moderate, 4 to tolerable
+
+```{r}
+#| echo: fenced
+
+asthma_tx %>% 
+  select(idR, PS_Pre) %>% 
+  mutate(PS_PreCat = as.character(PS_Pre), 
+         PS_PreCat = fct_recode(PS_PreCat, 
+                                "High" = "6", 
+                                "Moderate" = "5", 
+                                "Tolerable" = "4"))
+```
+
+#### Factor Level Order
+
+-   R recognize unordered string, and ordered factor
+-   commonly, we want to reorder the factor, for example we want female first, then male
+-   to reorder factor level, we will use function `fct_relevel(_)` from `tidyverse::` package
+
+::: callout-note
+to check level, use `str(_)` function or `levels(_)` function
+:::
+
+```{r}
+#| echo: fenced
+
+levels(asthma_ds$Gender)
+```
+
+```{r}
+#| echo: fenced
+
+asthma_ds <- asthma_ds %>% 
+  mutate(Gender2 = fct_relevel(Gender, "Female", "Male"), 
+         .after = Gender)
+
+asthma_ds
+
+levels(asthma_ds$Gender2)
+```
+
+#### Group combine (collapse factor)
+
+-   combine group using `fct_collapse(_)` function
+-   we will recode treatment group to intervention group (tx1), in which
+    -   Drug A and Drug B collapse into intervention
+    -   placebo collapse into control
+
+```{r}
+#| echo: fenced
+
+asthma_tx %>% 
+  select(idR, Tx2) %>% 
+  mutate(Tx1 = fct_collapse(Tx2, 
+                            "Intervention" = c("Drug A", 
+                                               "Drug B"), 
+                            "Control" = "Placebo"))
+```
+
+#### Basic Numerical Transformation
+
+-   R accept basic mathematical operator for data transformation
+    -   for example, to transform the height from cm to m.
+
+```{r}
+#| echo: fenced
+
+asthma_pa <- asthma_pa %>% 
+  mutate(Ht_m = Height/100, .after = Height)
+
+asthma_pa
+```
+
+-   we can also transform based on more than single column
+
+```{r}
+#| echo: fenced
+
+asthma_pa <- asthma_pa %>% 
+  mutate(BMI_Pre = Weight_Pre/(Ht_m^2), .after = Weight_Pre) 
+
+asthma_pa
+```
+
+-   to many digits? we can round them
+
+```{r}
+#| echo: fenced
+
+asthma_pa <- asthma_pa %>% 
+  mutate(BMI_Pre = round(BMI_Pre, 1)) 
+
+asthma_pa
+```
+
+#### Binning: Categorizing Numerical Variable
+
+-   apart from numerical transformation, we can also bin the numerical variable
+-   for example, we want to categorized the BMI to asian category
+    -   underweight: \< 18.5
+    -   normal: 18.5 - 22.9
+    -   overweight: 23.0 - 24.9
+    -   obese: \>= 25.0
+
+```{r}
+#| echo: fenced
+
+asthma_pa <- asthma_pa %>% 
+  mutate(BMI_PreCat = cut(BMI_Pre, 
+                          breaks = c(0, 18.49, 22.99, 
+                                     24.99, 100), 
+                          labels = c("Underweight", "Normal", 
+                                     "Overweight", "Obese")), 
+         .after = BMI_Pre)
+         
+
+asthma_pa
+```
+
+#### Reshape Dataset
+
+-   Data frame structure: Rows and columns represent observations and variables.
+    -   Rows: Individual records or observations.
+    -   Columns: Different attributes or variables.
+-   Wide Format: Single rows, multiple measurement columns.
+    -   Each row: One subject/sample.
+    -   Columns: Different time points or conditions.
+-   Long Format: Repeated rows, time/condition column.
+    -   Multiple rows: Same subject/sample.
+    -   Specific column: Indicates time or condition.
+
+1.  In this example, we will use other dataset, `asthma24_wide.sav`
+    -   download the dataset
+
+```{r}
+#| echo: fenced
+#| eval: false
+
+download.file(
+  url = "https://github.com/MohdAzmiSuliman/IKU_RBook/raw/master/dataset/asthma24_wide.sav", 
+  destfile = "asthma24_wide.sav", mode = "wb")
+```
+
+2.  Import the dataset to R
+    -   use `read_sav(_)` function to import SPSS file and `as_factor(_)` function to convert the code with the label.
+
+```{r}
+#| echo: fenced
+
+asthma_wide <- read_sav("asthma24_wide.sav") %>% 
+  as_factor()
+
+asthma_wide
+```
+
+3.  Reshape the data frame, into long format (i.e., single column for single variable, with a specific column indicating time)
+    -   in this example, we want to convert PEFR_Pre and PEFR_Post, from two separate column, into one single column, with new column indicate time.
+
+```{r}
+#| echo: fenced
+
+asthma_long <- asthma_wide %>% 
+  select(idR, Gender, Age, Tx2, PEFR_Pre, PEFR_Post) %>% 
+  pivot_longer(cols = c(PEFR_Pre, PEFR_Post), 
+               names_to = "Time", 
+               values_to = "PEFR")
+
+asthma_long
+```
+
+4.  We can also shape the data frame, into wide format (i.e., single row for single participant, with multiple column represent repeated variables)
+    -   in this example, we will use long format data in previous example
+
+```{r}
+#| echo: fenced
+
+asthma_wide <- asthma_long %>% 
+  pivot_wider(names_from = Time, 
+              values_from = PEFR)
+
+asthma_wide
+```
+
+#### Join Dataset
+
+-   Sometimes, you may want to join several dataset
+-   For example, the measurements (PEFR, SxWheeze & PS) were measured twice (Pre & Post), but were stored in different file. they have anonymized identifier that can be use to matched them.
+-   joining dataset using `__join(_)`
+
+1.  Download the dataset in working directory
+
+```{r}
+#| echo: fenced
+#| eval: false
+
+download.file(
+  url = "https://github.com/MohdAzmiSuliman/IKU_RBook/raw/master/dataset/asthma_pre.sav", 
+  destfile = "asthma_pre.sav", mode = "wb")
+download.file(
+  url = "https://github.com/MohdAzmiSuliman/IKU_RBook/raw/master/dataset/asthma_post.sav", 
+  destfile = "asthma_post.sav", mode = "wb")
+```
+
+2.  Load the dataset and save in R objects
+
+```{r}
+#| echo: fenced
+
+asthma_pre <- read_sav("asthma_pre.sav") %>% 
+  as_factor() %>% 
+  select(id, idR, PEFR_Pre, SxWheeze_Pre, PS_Pre)
+
+asthma_pre
+
+asthma_post <- read_sav("asthma_post.sav") %>% 
+  as_factor()
+
+asthma_post
+```
+
+3.  Joining dataset using `__join(_)` function
+
+```{r}
+#| echo: fenced
+
+left_join(asthma_pre, asthma_post, by = "idR")
+```
+
+### Save/Export Dataset
+
+-   R allow to save/export file to various format
+    -   CSV file: flexible and cross platforms
+    -   RDS & RData file: specific to R
+    -   XLSX, SPSS's SAV, Stata's DTA, etc
+    -   JSON, XML
+
+### Data Exploration
+
+-   understanding our data
+    -   data structure and content
+    -   summary statistics
+    -   visualization
+    -   identifying relationship and correlation
+-   iterative and interactive process
+    -   post-import
+    -   during data wrangling
+    -   before analysis
+
+#### Examine Structure
+
+-   dataset structure can be view using `str` function
+
+```{r}
+#| echo: fenced
+
+str(asthma_ds)
+```
+
+```{r}
+#| echo: fenced
+
+str(asthma_ds$Gender)
+```
+
+#### Summarise data
+
+-   simplest way to have summary of the data, is use `summary(_)` function
+
+```{r}
+#| echo: fenced
+
+summary(asthma_ds)
+```
+
+```{r}
+#| echo: fenced
+
+summary(asthma_ds$Gender)
+```
+
+```{r}
+#| echo: fenced
+
+summary(asthma_ds$Age)
 ```
