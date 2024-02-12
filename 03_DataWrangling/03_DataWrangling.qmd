@@ -4,7 +4,7 @@
 
 -   Common data analysis look like this
 
-![source: r4ds.hadley.nz](R4DS_wrangling.png)
+![source: r4ds.hadley.nz](03_R4DSwrangling.png)
 
 -   real world data commonly messy!
 -   80% of time taken spend on data cleaning
@@ -14,6 +14,15 @@
     -   label data
     -   recategorise categorical variable - usually collapsing groups
     -   binning continuous variable
+
+## Tidyverse
+
+### Pipe & Mutate
+
+-   functional programming operators, `%>%` called pipe, allow for chaining functions in sequence
+    -   result of left-hand side is passed as the first argument to the function of right-hand side
+-   in tidyverse, wrangling data can be done simultaneously using mutate function
+    -   the code can be more *elegant*
 
 ## Practical
 
@@ -125,6 +134,29 @@ asthma_tx <- asthma_ds %>%
 
 asthma_tx
 ```
+
+#### Relocate Column
+
+-   we can relocate column using `relocate` function
+
+```{r}
+#| echo: fenced
+
+asthma_ds %>% 
+  relocate(Weight_Pre, Weight_Post, PA_HW, .after = Age)
+
+asthma_ds
+```
+
+-   we can also use `select` function to relocate
+
+```{r}
+asthma_ds %>% 
+  select(idR:Age, Weight_Pre, Weight_Post, PA_HW, 
+         everything())
+```
+
+
 
 #### Sorting by Variable
 
@@ -463,3 +495,24 @@ summary(asthma_ds$Gender)
 
 summary(asthma_ds$Age)
 ```
+
+
+## Addin: `questionr::` package
+
+`questionr::` package is a rstudio addin that is useful for data wrangling
+
+```{r}
+#| echo: fenced
+
+if (!require("questionr", character.only = TRUE)) {
+  install.packages("questionr")
+}
+
+```
+
+
+after install the addin, it will appear in the addin list
+
+![`questionr::` addin](03_AddinScreenshot.png)
+
+the usage of addin is intuitive and self-explanatory
