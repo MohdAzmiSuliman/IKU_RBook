@@ -65,6 +65,24 @@ asthmads
 
 ## `esquisse::` RStudio Addin
 
+`esquisse` package is a rstudio addin that is useful for data vizualization
+
+```{r}
+#| echo: fenced
+
+if (!require("esquisse", character.only = TRUE)) {
+  install.packages("esquisse")
+}
+
+```
+
+
+after install the addin, it will appear in the addin list
+
+![`esquisse::` addin](04_AddinScreenshot.png)
+
+the usage of addin is intuitive and self-explanatory
+
 
 
 
