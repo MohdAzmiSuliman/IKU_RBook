@@ -44,7 +44,7 @@ Bivariate analysis involves examining the relationship or association between to
 
 Contigency table, or crosstab, is a simple matrix that display the frequency of occurence of combination of two categories for two categorical variable.
 
-For example, this contigency table show a cross tabulation between smoking status and lung cancer outcome.
+For example, this contingency table show a cross tabulation between smoking status and lung cancer outcome.
 
 ```{r}
 #| echo: false
